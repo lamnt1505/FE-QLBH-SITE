@@ -15,6 +15,7 @@ import {
 import Rating from "@mui/material/Rating";
 
 import { useAlert } from "react-alert";
+import { Toast } from "bootstrap";
 
 const ProductGrid = () => {
   const alert = useAlert();
@@ -33,6 +34,8 @@ const ProductGrid = () => {
   const [comment, setComment] = useState("");
 
   const [openDetail, setOpenDetail] = useState(false);
+
+  const [stockList, setStockList] = useState([]);
 
   const accountID = 1;
 
@@ -59,7 +62,7 @@ const ProductGrid = () => {
         setProducts(mapped);
       } catch (error) {
         console.error("Lỗi khi fetch sản phẩm:", error);
-        alert.error("❌ Không thể tải danh sách sản phẩm!");
+        alert.error("Không thể tải danh sách sản phẩm!");
       } finally {
         setLoading(false);
       }
@@ -76,14 +79,14 @@ const ProductGrid = () => {
 
       const result = await res.text();
       if (res.ok) {
-        alert.success("❤️ Đã thêm vào danh mục yêu thích!");
+        alert.success("Đã thêm vào danh mục yêu thích!");
         setFavorites((prev) => [...prev, productId]);
       } else {
-        alert.error(result || "❌ Thêm yêu thích thất bại!");
+        alert.error(result || "Thêm yêu thích thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi thêm yêu thích:", err);
-      alert.error("❌ Không thể kết nối server!");
+      alert.error("Không thể kết nối server!");
     }
   };
 
@@ -107,36 +110,19 @@ const ProductGrid = () => {
 
       const result = await res.json();
       if (res.ok) {
-        alert.success("⭐ Cảm ơn bạn đã đánh giá!");
+        alert.success("Cảm ơn bạn đã đánh giá!");
         setOpenVote(false);
         setRating(0);
         setComment("");
       } else {
-        alert.error(result || "❌ Đánh giá thất bại!");
+        alert.error(result || "Đánh giá thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi gửi đánh giá:", err);
-      alert.error("❌ Không thể kết nối server!");
+      alert.error("Không thể kết nối server!");
     }
   };
 
-  // 👉 Chi tiết sản phẩm
-  const handleOpenDetail = async (productId) => {
-    try {
-      const res = await fetch(
-        `http://localhost:8080/api/v1/product/${productId}/get`
-      );
-      if (!res.ok) throw new Error("Không tìm thấy sản phẩm");
-      const data = await res.json();
-      setProductDetail(data);
-      setOpenDetail(true);
-    } catch (err) {
-      console.error("Lỗi khi lấy chi tiết:", err);
-      alert.error("❌ Không tìm thấy sản phẩm!");
-    }
-  };
-
-  // 👉 Giỏ hàng
   const handleAddToCart = async (productId) => {
     try {
       const res = await fetch(
@@ -151,11 +137,11 @@ const ProductGrid = () => {
         }
       } else {
         const result = await res.text();
-        alert.error(result || "❌ Thêm vào giỏ thất bại!");
+        alert.error(result || "Thêm vào giỏ thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi thêm vào giỏ hàng:", err);
-      alert.error("❌ Không thể kết nối server!");
+      alert.error("Không thể kết nối server!");
     }
   };
 
@@ -166,20 +152,19 @@ const ProductGrid = () => {
       );
 
       if (stockRes.ok) {
-        const stockData = await stockRes.text();
+        const stockData = await stockRes.json();
         setStockByBranch(stockData);
       } else {
-        setStockByBranch("Không lấy được tồn kho");
+        setStockByBranch({ message: "Không lấy được tồn kho", status: "out" });
       }
     } catch (err) {
       console.error("Lỗi khi lấy tồn kho:", err);
-      setStockByBranch("Không lấy được tồn kho");
+      setStockByBranch({ message: "Không lấy được tồn kho", status: "out" });
     }
   };
 
-  const handleOpenDetailInventory = async (productId, branchID) => {
+  const handleOpenDetailInventory = async (productId) => {
     try {
-      // Lấy chi tiết sản phẩm
       const res = await fetch(
         `http://localhost:8080/api/v1/product/${productId}/get`
       );
@@ -187,12 +172,23 @@ const ProductGrid = () => {
       const data = await res.json();
       setProductDetail(data);
 
-      fetchStockByBranch(branchID, productId);
+      const stockRes = await fetch(
+        `http://localhost:8080/api/v1/inventory/by-product/${productId}`
+      );
+      if (!stockRes.ok) throw new Error("Không lấy được danh sách tồn kho");
+      const stockData = await stockRes.json();
+      setStockList(stockData);
+
+      if (stockData.length > 0 && data?.id) {
+        const defaultBranch = stockData[0].branchID;
+        setBranchID(defaultBranch);
+        fetchStockByBranch(defaultBranch, data.id);
+      }
 
       setOpenDetail(true);
     } catch (err) {
       console.error("Lỗi khi lấy chi tiết:", err);
-      alert.error("❌ Không tìm thấy sản phẩm!");
+      Toast.error("Không tìm thấy sản phẩm!");
     }
   };
 
@@ -277,7 +273,6 @@ const ProductGrid = () => {
         ))
       )}
 
-      {/* Dialog đánh giá */}
       <Dialog open={openVote} onClose={() => setOpenVote(false)}>
         <DialogTitle>Đánh Giá Sản Phẩm</DialogTitle>
         <DialogContent>
@@ -312,7 +307,6 @@ const ProductGrid = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Dialog chi tiết sản phẩm */}
       <Dialog
         open={openDetail}
         onClose={() => setOpenDetail(false)}
@@ -346,7 +340,19 @@ const ProductGrid = () => {
               <p>
                 <b>Thương hiệu:</b> {detailProduct.tradeName}
               </p>
-              {/* Dropdown chọn chi nhánh */}
+              <div style={{ marginTop: "16px" }}>
+                <b>Tình trạng tồn kho:</b>{" "}
+                {stockList && stockList.length > 0 ? (
+                  <span style={{ color: "green" }}>
+                    Có hàng tại {stockList.filter((s) => s.quantity > 0).length}{" "}
+                    chi nhánh
+                  </span>
+                ) : (
+                  <span style={{ color: "red" }}>
+                    Hết hàng tại tất cả chi nhánh
+                  </span>
+                )}
+              </div>
               <div style={{ marginTop: "16px" }}>
                 <b>Chọn chi nhánh:</b>
                 <Select
@@ -356,11 +362,14 @@ const ProductGrid = () => {
                     setBranchID(newBranch);
                     fetchStockByBranch(newBranch, detailProduct.id);
                   }}
-                  style={{ marginLeft: "10px", minWidth: "150px" }}
+                  style={{ marginLeft: "10px", minWidth: "200px" }}
                 >
-                  <MenuItem value={1}>Hà Nội</MenuItem>
-                  <MenuItem value={2}>TP.HCM</MenuItem>
-                  <MenuItem value={3}>Đà Nẵng</MenuItem>
+                  {stockList &&
+                    stockList.map((branch) => (
+                      <MenuItem key={branch.branchID} value={branch.branchID}>
+                        {branch.branchName} ({branch.city} - {branch.district})
+                      </MenuItem>
+                    ))}
                 </Select>
               </div>
 
@@ -368,15 +377,17 @@ const ProductGrid = () => {
                 {stockByBranch ? (
                   <p
                     style={{
-                      color: stockByBranch.includes("Còn hàng")
-                        ? "green"
-                        : "red",
+                      color:
+                        stockByBranch.status === "in_stock" ? "green" : "red",
                     }}
                   >
-                    <b>Tồn kho:</b> {stockByBranch}
+                    <b>Tồn kho:</b> {stockByBranch.message} (
+                    {stockByBranch.quantity} sản phẩm)
                   </p>
                 ) : (
-                  <p style={{ color: "gray" }}>Đang tải tồn kho...</p>
+                  <p style={{ color: "gray" }}>
+                    Vui lòng chọn chi nhánh để xem tồn kho
+                  </p>
                 )}
               </div>
             </div>

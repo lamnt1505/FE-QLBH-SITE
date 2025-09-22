@@ -122,8 +122,6 @@ const ProductSearch = ({ open, onClose }) => {
               ))}
             </Paper>
           </Grid>
-
-          {/* Thương hiệu */}
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
@@ -150,8 +148,6 @@ const ProductSearch = ({ open, onClose }) => {
               ))}
             </Paper>
           </Grid>
-
-          {/* Phiên bản */}
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
@@ -178,8 +174,6 @@ const ProductSearch = ({ open, onClose }) => {
               ))}
             </Paper>
           </Grid>
-
-          {/* Chi tiết */}
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
@@ -207,8 +201,6 @@ const ProductSearch = ({ open, onClose }) => {
             </Paper>
           </Grid>
         </Grid>
-
-        {/* Kết quả */}
         <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
           📦 Kết quả tìm kiếm
         </Typography>
@@ -255,8 +247,6 @@ const ProductSearch = ({ open, onClose }) => {
           </TableContainer>
         )}
       </DialogContent>
-
-      {/* Action buttons */}
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={handleSearch} variant="contained" color="primary">
           Tìm kiếm

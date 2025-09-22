@@ -17,11 +17,11 @@ const CatalogPage = () => {
       .finally(() => setLoading(false));
   }, [categoryID]);
 
-  if (loading) return <p className="text-center mt-4">⏳ Đang tải...</p>;
+  if (loading) return <p className="text-center mt-4">Đang tải...</p>;
 
   return (
     <div className="container py-4">
-      <h2 className="fw-bold text-center mb-4">📂 Sản phẩm theo danh mục #{categoryID}</h2>
+      <h2 className="fw-bold text-center mb-4">Sản phẩm theo danh mục #{categoryID}</h2>
 
       {products.length === 0 ? (
         <p className="text-center text-muted">Không có sản phẩm nào.</p>

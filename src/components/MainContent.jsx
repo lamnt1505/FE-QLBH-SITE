@@ -30,7 +30,6 @@ const slidesData = [
   },
 ];
 
-
 // Dữ liệu tin tức mẫu
 const newsData = [
     { id: 1, title: 'Apple ra mắt dòng sản phẩm iPhone mới với nhiều cải tiến vượt trội về camera và hiệu năng.' },

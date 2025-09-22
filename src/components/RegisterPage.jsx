@@ -103,7 +103,6 @@ const RegisterPage = () => {
             value={formData.phoneNumber}
             onChange={handleChange}
           />
-          {/* thêm ngày sinh */}
           <input
             type="date"
             name="dateOfBirth"
@@ -111,7 +110,6 @@ const RegisterPage = () => {
             value={formData.dateOfBirth}
             onChange={handleChange}
           />
-          {/* thêm địa chỉ/local */}
           <input
             type="text"
             name="local"

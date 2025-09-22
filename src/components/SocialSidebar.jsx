@@ -28,9 +28,9 @@ const ChatWindow = ({ onClose }) => {
           { sender, content: message, timestamp: Date.now() },
         ]);
         setMessage("");
-        alert("✅ Đã gửi tới admin");
+        alert("Đã gửi tới admin");
       } else {
-        alert("❌ Gửi tin nhắn thất bại");
+        alert("Gửi tin nhắn thất bại");
       }
     } catch (err) {
       console.error("Lỗi gửi chat:", err);
