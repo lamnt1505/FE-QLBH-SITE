@@ -14,6 +14,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import MyOrdersPage from "./components/MyOrdersPage";
+import PaymentResult from "./components/PaymentResult";
+
 import { transitions, positions, Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import UpdateProfileDialogPage from "./components/UpdateProfileDialog";
@@ -34,16 +36,14 @@ function App() {
           <SocialSidebar />
           <main>
             <Routes>
-              {/* Trang chính */}
-              <Route
-                path="/index"
-                element={
+              <Route path="/index" element={
                   <>
                     <MainContent />
                     <ProductGrid />
                   </>
                 }
               />
+              <Route path="/payment-result" element={<PaymentResult />} />
               <Route path="/updateProfile/:accountID" element={<UpdateProfileDialogPage />} />
               <Route path="/catalog/:categoryID" element={<CatalogPage />} />
               <Route path="/cart" element={<CartPage />} />

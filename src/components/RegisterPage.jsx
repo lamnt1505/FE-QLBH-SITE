@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     accountName: "",
     accountPass: "",
@@ -12,18 +14,25 @@ const RegisterPage = () => {
   });
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
-
+  const validatePassword = (password) => {
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password); 
+    return hasUppercase || hasSpecialChar;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+
+    if (!validatePassword(formData.accountPass)) {
+      setMessage("Mật khẩu phải có ít nhất 1 chữ hoa hoặc 1 ký tự đặc biệt!");
+      return;
+    }
 
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -64,7 +73,7 @@ const RegisterPage = () => {
           <input
             type="text"
             name="accountName"
-            placeholder="Tên tài khoản"
+            placeholder="TÊN ĐĂNG NHẬP"
             className="form-control mb-2"
             value={formData.accountName}
             onChange={handleChange}
@@ -73,7 +82,7 @@ const RegisterPage = () => {
           <input
             type="password"
             name="accountPass"
-            placeholder="Mật khẩu"
+            placeholder="MẬT KHẨU"
             className="form-control mb-2"
             value={formData.accountPass}
             onChange={handleChange}
@@ -82,7 +91,7 @@ const RegisterPage = () => {
           <input
             type="text"
             name="username"
-            placeholder="Họ tên"
+            placeholder="HỌ TÊN"
             className="form-control mb-2"
             value={formData.username}
             onChange={handleChange}
@@ -90,7 +99,7 @@ const RegisterPage = () => {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="EMAIL"
             className="form-control mb-2"
             value={formData.email}
             onChange={handleChange}
@@ -98,7 +107,7 @@ const RegisterPage = () => {
           <input
             type="text"
             name="phoneNumber"
-            placeholder="Số điện thoại"
+            placeholder="SỐ ĐIỆN THOẠI"
             className="form-control mb-2"
             value={formData.phoneNumber}
             onChange={handleChange}
@@ -113,7 +122,7 @@ const RegisterPage = () => {
           <input
             type="text"
             name="local"
-            placeholder="Địa chỉ"
+            placeholder="ĐỊA CHỈ"
             className="form-control mb-2"
             value={formData.local}
             onChange={handleChange}
@@ -125,8 +134,15 @@ const RegisterPage = () => {
             onChange={handleImageChange}
           />
 
-          <button type="submit" className="btn btn-success w-100">
-            Đăng ký
+          <button type="submit" className="btn btn-success w-100 mb-2">
+            ĐĂNG KÝ
+          </button>
+                    <button
+            type="button"
+            className="btn btn-outline-secondary w-100"
+            onClick={() => navigate("/login")}
+          >
+            ĐĂNG NHẬP
           </button>
         </form>
       </div>

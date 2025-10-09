@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
+import ProductSearch from "./ProductSearch";
 import {
   Dialog,
   DialogTitle,
@@ -11,9 +12,9 @@ import {
   TextField,
   MenuItem,
   Select,
+  Box,
 } from "@mui/material";
 import Rating from "@mui/material/Rating";
-
 import { useAlert } from "react-alert";
 import { Toast } from "bootstrap";
 
@@ -21,6 +22,8 @@ const ProductGrid = () => {
   const alert = useAlert();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [message] = useState("");
+  const [openSearchDialog, setOpenSearchDialog] = useState(false);
 
   const [favorites, setFavorites] = useState([]);
 
@@ -39,36 +42,59 @@ const ProductGrid = () => {
 
   const accountID = 1;
 
+  const mapProduct = (p) => ({
+    id: p.id,
+    title: p.name,
+    description: p.description,
+    category: p.categoryname,
+    tradeName: p.tradeName,
+    price: p.price,
+    imageUrl: p.imageBase64
+      ? `data:image/jpeg;base64,${p.imageBase64}`
+      : "https://via.placeholder.com/150",
+  });
+
+  const fetchProductsDefault = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:8080/dossier-statistic/list--Product"
+      );
+      const data = await res.json();
+      setProducts(data.map(mapProduct));
+    } catch (error) {
+      console.error("Lỗi khi fetch sản phẩm:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(
-          "http://localhost:8080/dossier-statistic/list--Product"
-        );
-        const data = await res.json();
-
-        const mapped = data.map((p) => ({
-          id: p.id,
-          title: p.name,
-          description: p.description,
-          category: p.categoryname,
-          tradeName: p.tradeName,
-          price: p.price,
-          imageUrl: p.imageBase64
-            ? `data:image/jpeg;base64,${p.imageBase64}`
-            : "https://via.placeholder.com/150",
-        }));
-
-        setProducts(mapped);
-      } catch (error) {
-        console.error("Lỗi khi fetch sản phẩm:", error);
-        alert.error("Không thể tải danh sách sản phẩm!");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
+    fetchProductsDefault();
   }, [alert]);
+
+  const fetchPriceDesc = async () => {
+    const res = await fetch(
+      "http://localhost:8080/dossier-statistic/list--Product--PriceDesc"
+    );
+    const data = await res.json();
+    setProducts(data.map(mapProduct));
+  };
+
+  const fetchPriceAsc = async () => {
+    const res = await fetch(
+      "http://localhost:8080/dossier-statistic/list--Product--PriceAsc"
+    );
+    const data = await res.json();
+    setProducts(data.map(mapProduct));
+  };
+
+  const fetchNewBest = async () => {
+    const res = await fetch(
+      "http://localhost:8080/dossier-statistic/list--Product--NewBest"
+    );
+    const data = await res.json();
+    setProducts(data.map(mapProduct));
+  };
 
   const toggleFavorite = async (productId) => {
     try {
@@ -193,210 +219,262 @@ const ProductGrid = () => {
   };
 
   return (
-    <div className="product-grid">
-      {loading ? (
-        <p>Đang tải dữ liệu...</p>
-      ) : (
-        products.map((product) => (
-          <div
-            key={product.id}
-            className="product-card"
-            style={{ position: "relative" }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: "8px",
-                left: "8px",
-                cursor: "pointer",
-                zIndex: 10,
-                color: favorites.includes(product.id) ? "red" : "gray",
+    <div>
+      <div className="filter-bar">
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 1,
+            mb: 2,
+            justifyContent: "center",
+          }}
+        >
+          {[
+            { label: "TẤT CẢ", onClick: fetchProductsDefault },
+            { label: "GIÁ ↑ THẤP ĐẾN CAO", onClick: fetchPriceAsc },
+            { label: "GIÁ ↓ CAO ĐẾN THẤP", onClick: fetchPriceDesc },
+            { label: "SẢN PHẨM MỚI / TỐT NHẤT", onClick: fetchNewBest },
+          ].map((btn, index) => (
+            <Button
+              key={index}
+              variant="contained"
+              size="small"
+              sx={{
+                textTransform: "none",
+                fontSize: "0.8rem",
+                padding: "4px 10px",
+                minWidth: "unset",
               }}
-              onClick={() => toggleFavorite(product.id)}
+              onClick={btn.onClick}
             >
-              {favorites.includes(product.id) ? (
-                <FavoriteIcon />
-              ) : (
-                <FavoriteBorderIcon />
-              )}
-            </div>
+              {btn.label}
+            </Button>
+          ))}
+              <Button
+      variant="outlined"
+      size="small"
+      sx={{
+        textTransform: "none",
+        fontSize: "0.8rem",
+        padding: "4px 10px",
+        minWidth: "unset",
+      }}
+      onClick={() => setOpenSearchDialog(true)}
+    >
+      🔍 TÌM KIẾM NÂNG CAO
+    </Button>
+        </Box>
+      </div>
+      <div className="product-grid">
+          {loading ? (
+            <p>ĐANG TẢI DỮ LIỆU...</p>
+          ) : message ? (
+            <p style={{ textAlign: "center", color: "gray" }}>{message}</p>
+          ) : (
+          products.map((product) => (
             <div
-              style={{
-                position: "absolute",
-                top: "8px",
-                right: "8px",
-                cursor: "pointer",
-                zIndex: 10,
-              }}
-              onClick={() => handleOpenDetailInventory(product.id)}
+              key={product.id}
+              className="product-card"
+              style={{ position: "relative" }}
             >
-              <SearchIcon />
-            </div>
-
-            <div className="product-image-container">
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="product-image"
-              />
-            </div>
-
-            <div className="product-info">
-              <h3>{product.title}</h3>
-              <p>
-                {product.category} - {product.tradeName}
-              </p>
-              <div>
-                <span>{product.price.toLocaleString("vi-VN")} ₫</span>
-              </div>
-
-              <div className="product-actions" style={{ marginTop: "8px" }}>
-                <button
-                  className="btn-add-to-cart"
-                  onClick={() => handleAddToCart(product.id)}
-                  style={{ marginRight: "6px" }}
-                >
-                  Thêm vào Giỏ hàng
-                </button>
-                <button
-                  className="btn-vote"
-                  onClick={() => {
-                    setSelectedProduct(product.id);
-                    setOpenVote(true);
-                  }}
-                >
-                  Đánh giá
-                </button>
-              </div>
-            </div>
-          </div>
-        ))
-      )}
-
-      <Dialog open={openVote} onClose={() => setOpenVote(false)}>
-        <DialogTitle>Đánh Giá Sản Phẩm</DialogTitle>
-        <DialogContent>
-          <Rating
-            name="product-rating"
-            value={rating}
-            onChange={(e, newValue) => setRating(newValue)}
-          />
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            label="Nhập nhận xét (tối đa 200 ký tự)"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            inputProps={{ maxLength: 200 }}
-            margin="normal"
-          />
-          <div style={{ textAlign: "right", fontSize: "12px" }}>
-            {comment.length}/200
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenVote(false)}>Hủy</Button>
-          <Button
-            onClick={handleSubmitVote}
-            variant="contained"
-            color="primary"
-          >
-            Gửi Đánh Giá
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={openDetail}
-        onClose={() => setOpenDetail(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>CHI TIẾT SẢN PHẨM</DialogTitle>
-        <DialogContent>
-          {detailProduct && (
-            <div>
-              <img
-                src={`data:image/jpeg;base64,${detailProduct.imageBase64}`}
-                alt={detailProduct.name}
-                style={{ width: "100%", marginBottom: "16px" }}
-              />
-              <p>
-                <b>Tên:</b> {detailProduct.name}
-              </p>
-              <p>
-                <b>Mô tả:</b> {detailProduct.description}
-              </p>
-              <p>
-                <b>Giá:</b> {detailProduct.price.toLocaleString("vi-VN")} ₫
-              </p>
-              <p>
-                <b>Ngày sản xuất:</b> {detailProduct.date_product}
-              </p>
-              <p>
-                <b>Danh mục:</b> {detailProduct.categoryname}
-              </p>
-              <p>
-                <b>Thương hiệu:</b> {detailProduct.tradeName}
-              </p>
-              <div style={{ marginTop: "16px" }}>
-                <b>Tình trạng tồn kho:</b>{" "}
-                {stockList && stockList.length > 0 ? (
-                  <span style={{ color: "green" }}>
-                    Có hàng tại {stockList.filter((s) => s.quantity > 0).length}{" "}
-                    chi nhánh
-                  </span>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  left: "8px",
+                  cursor: "pointer",
+                  zIndex: 10,
+                  color: favorites.includes(product.id) ? "red" : "gray",
+                }}
+                onClick={() => toggleFavorite(product.id)}
+              >
+                {favorites.includes(product.id) ? (
+                  <FavoriteIcon />
                 ) : (
-                  <span style={{ color: "red" }}>
-                    Hết hàng tại tất cả chi nhánh
-                  </span>
+                  <FavoriteBorderIcon />
                 )}
               </div>
-              <div style={{ marginTop: "16px" }}>
-                <b>Chọn chi nhánh:</b>
-                <Select
-                  value={branchID}
-                  onChange={(e) => {
-                    const newBranch = e.target.value;
-                    setBranchID(newBranch);
-                    fetchStockByBranch(newBranch, detailProduct.id);
-                  }}
-                  style={{ marginLeft: "10px", minWidth: "200px" }}
-                >
-                  {stockList &&
-                    stockList.map((branch) => (
-                      <MenuItem key={branch.branchID} value={branch.branchID}>
-                        {branch.branchName} ({branch.city} - {branch.district})
-                      </MenuItem>
-                    ))}
-                </Select>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  right: "8px",
+                  cursor: "pointer",
+                  zIndex: 10,
+                }}
+                onClick={() => handleOpenDetailInventory(product.id)}
+              >
+                <SearchIcon />
+              </div>
+              <div className="product-image-container">
+                <img
+                  src={product.imageUrl}
+                  alt={product.title}
+                  className="product-image"
+                />
               </div>
 
-              <div style={{ marginTop: "12px" }}>
-                {stockByBranch ? (
-                  <p
-                    style={{
-                      color:
-                        stockByBranch.status === "in_stock" ? "green" : "red",
+              <div className="product-info">
+                <h3>{product.title}</h3>
+                <p>
+                  {product.category} - {product.tradeName}
+                </p>
+                <div>
+                  <span>{product.price.toLocaleString("vi-VN")} ₫</span>
+                </div>
+                <div className="product-actions" style={{ marginTop: "8px" }}>
+                  <button
+                    className="btn-add-to-cart"
+                    onClick={() => handleAddToCart(product.id)}
+                    style={{ marginRight: "6px" }}
+                  >
+                    THÊM VÀO GIỎ HÀNG
+                  </button>
+                  <button
+                    className="btn-vote"
+                    onClick={() => {
+                      setSelectedProduct(product.id);
+                      setOpenVote(true);
                     }}
                   >
-                    <b>Tồn kho:</b> {stockByBranch.message} (
-                    {stockByBranch.quantity} sản phẩm)
-                  </p>
-                ) : (
-                  <p style={{ color: "gray" }}>
-                    Vui lòng chọn chi nhánh để xem tồn kho
-                  </p>
-                )}
+                    ĐÁNH GIÁ
+                  </button>
+                </div>
               </div>
             </div>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDetail(false)}>Đóng</Button>
-        </DialogActions>
-      </Dialog>
+          ))
+        )}
+      <ProductSearch
+        open={openSearchDialog}
+        onClose={() => setOpenSearchDialog(false)}
+      />
+        <Dialog open={openVote} onClose={() => setOpenVote(false)}>
+          <DialogTitle>Đánh Giá Sản Phẩm</DialogTitle>
+          <DialogContent>
+            <Rating
+              name="product-rating"
+              value={rating}
+              onChange={(e, newValue) => setRating(newValue)}
+            />
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label="Nhập nhận xét (tối đa 200 ký tự)"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              inputProps={{ maxLength: 200 }}
+              margin="normal"
+            />
+            <div style={{ textAlign: "right", fontSize: "12px" }}>
+              {comment.length}/200
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenVote(false)}>Hủy</Button>
+            <Button
+              onClick={handleSubmitVote}
+              variant="contained"
+              color="primary"
+            >
+              GỬI ĐÁNH GIÁ
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDetail}
+          onClose={() => setOpenDetail(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>CHI TIẾT SẢN PHẨM</DialogTitle>
+          <DialogContent>
+            {detailProduct && (
+              <div>
+                <img
+                  src={`data:image/jpeg;base64,${detailProduct.imageBase64}`}
+                  alt={detailProduct.name}
+                  style={{ width: "100%", marginBottom: "16px" }}
+                />
+                <p>
+                  <b>TÊN:</b> {detailProduct.name}
+                </p>
+                <p>
+                  <b>MÔ TẢ:</b> {detailProduct.description}
+                </p>
+                <p>
+                  <b>GIÁ:</b> {detailProduct.price.toLocaleString("vi-VN")} ₫
+                </p>
+                <p>
+                  <b>NGÀY SẢN XUẤT:</b> {detailProduct.date_product}
+                </p>
+                <p>
+                  <b>DANH MỤC:</b> {detailProduct.categoryname}
+                </p>
+                <p>
+                  <b>THƯƠNG HIỆU:</b> {detailProduct.tradeName}
+                </p>
+                <div style={{ marginTop: "16px" }}>
+                  <b>Tình trạng tồn kho:</b>{" "}
+                  {stockList && stockList.length > 0 ? (
+                    <span style={{ color: "green" }}>
+                      Có hàng tại{" "}
+                      {stockList.filter((s) => s.quantity > 0).length} chi nhánh
+                    </span>
+                  ) : (
+                    <span style={{ color: "red" }}>
+                      Hết hàng tại tất cả chi nhánh
+                    </span>
+                  )}
+                </div>
+                <div style={{ marginTop: "16px" }}>
+                  <b>CHỌN CHI NHÁNH:</b>
+                  <Select
+                    value={branchID}
+                    onChange={(e) => {
+                      const newBranch = e.target.value;
+                      setBranchID(newBranch);
+                      fetchStockByBranch(newBranch, detailProduct.id);
+                    }}
+                    style={{ marginLeft: "10px", minWidth: "200px" }}
+                  >
+                    {stockList &&
+                      stockList.map((branch) => (
+                        <MenuItem key={branch.branchID} value={branch.branchID}>
+                          {branch.branchName} ({branch.city} - {branch.district}
+                          )
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </div>
+
+                <div style={{ marginTop: "12px" }}>
+                  {stockByBranch ? (
+                    <p
+                      style={{
+                        color:
+                          stockByBranch.status === "in_stock" ? "green" : "red",
+                      }}
+                    >
+                      <b>TỒN KHO:</b> {stockByBranch.message} (
+                      {stockByBranch.quantity} SẢN PHẨM)
+                    </p>
+                  ) : (
+                    <p style={{ color: "gray" }}>
+                      VUI LÒNG CHỌN CHI NHÁNH ĐỂ XEM TỒN KHO
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDetail(false)}>ĐÓNG</Button>
+          </DialogActions>
+          
+        </Dialog>
+      </div>
     </div>
   );
 };

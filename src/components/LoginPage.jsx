@@ -59,7 +59,10 @@ const LoginPage = () => {
 
       if (data.success) {
         localStorage.setItem("accountName", accountName);
-        localStorage.setItem("accountId", String(data.accountID));
+        localStorage.setItem("accountId", data.accountID);
+        
+        console.log("Lưu accountID:", data.accountID);
+
         alert.success("Đăng nhập thành công!");
 
         setTimeout(() => {
@@ -84,32 +87,32 @@ const LoginPage = () => {
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow-lg" style={{ width: "400px" }}>
-        <h3 className="text-center mb-3">Đăng nhập</h3>
+        <h3 className="text-center mb-3">ĐĂNG NHẬP</h3>
 
         {error && <div className="alert alert-danger">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Tài khoản</label>
+            <label className="form-label">TÀI KHOẢN</label>
             <input
               type="text"
               className="form-control"
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
               required
-              placeholder="Nhập tên tài khoản"
+              placeholder="NHẬP TÀI KHOẢN"
             />
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Mật khẩu</label>
+            <label className="form-label">MẬT KHẨU</label>
             <input
               type="password"
               className="form-control"
               value={accountPass}
               onChange={(e) => setAccountPass(e.target.value)}
               required
-              placeholder="Nhập mật khẩu"
+              placeholder="NHẬP MẬT KHẨU"
             />
           </div>
 
@@ -117,7 +120,7 @@ const LoginPage = () => {
             <input
               type="text"
               className="form-control me-2"
-              placeholder="Nhập Captcha"
+              placeholder="NHẬP CAPTCHA"
               value={captcha}
               onChange={(e) => setCaptcha(e.target.value)}
               required
@@ -127,12 +130,12 @@ const LoginPage = () => {
               alt="captcha"
               style={{ cursor: "pointer", height: "50px" }}
               onClick={refreshCaptcha}
-              title="Click để làm mới"
+              title="CLICK ĐỂ LÀM MỚI CAPTCHA"
             />
           </div>
 
           <button type="submit" className="btn btn-primary w-100 mb-2">
-            Đăng nhập
+            ĐĂNG NHẬP
           </button>
 
           <button
@@ -140,7 +143,7 @@ const LoginPage = () => {
             className="btn btn-outline-secondary w-100"
             onClick={() => navigate("/register")}
           >
-            Đăng ký
+            ĐĂNG KÝ
           </button>
         </form>
       </div>

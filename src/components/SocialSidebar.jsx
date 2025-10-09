@@ -43,14 +43,14 @@ const ChatWindow = ({ onClose }) => {
   return (
     <div className="chat-window">
       <div className="chat-header">
-        <h3>Chat với nhân viên</h3>
+        <h3>CHAT VỚI NHÂN VIÊN</h3>
         <button onClick={onClose} className="chat-close-btn">
           &times;
         </button>
       </div>
       <div className="chat-body">
         {messages.length === 0 ? (
-          <p className="text-muted">👉 Hãy bắt đầu nhắn tin...</p>
+          <p className="text-muted">👉 HÃY BẮT ĐẦU NHẮN TIN...</p>
         ) : (
           messages.map((m, i) => (
             <div
@@ -77,7 +77,7 @@ const ChatWindow = ({ onClose }) => {
           disabled={sending}
         />
         <button onClick={handleSend} disabled={sending}>
-          Gửi
+          GỬI
         </button>
       </div>
     </div>
@@ -100,7 +100,7 @@ const SocialSidebar = () => {
         <div className="social-icon">z</div>
       </div>
       <div className="chat-bubble-container">
-        <div className="chat-bubble-label">Nhắn tới nhân viên</div>
+        <div className="chat-bubble-label">NHẮN TỚI NHÂN VIÊN</div>
         <div className="chat-bubble" onClick={toggleChatWindow}>
           <svg
             xmlns="http://www.w3.org/2000/svg"

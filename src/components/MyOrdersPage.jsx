@@ -70,9 +70,6 @@ const MyOrdersPage = () => {
       const data = await res.json();
 
       setSelectedOrder({ orderId, products: data.oldOrders });
-
-      const modal = new Modal(document.getElementById("orderDetailModal"));
-      modal.show();
     } catch (err) {
       console.error("Lỗi khi lấy chi tiết đơn hàng:", err);
     }
@@ -116,7 +113,7 @@ const MyOrdersPage = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-4">⏳ Đang tải...</p>;
+  if (loading) return <p className="text-center mt-4">⏳ ĐANG TẢI...</p>;
 
   return (
     <div className="row g-3">
@@ -126,15 +123,15 @@ const MyOrdersPage = () => {
             <div className="card-body">
               <h6 className="card-title">Đơn #{order.orderId}</h6>
               <p className="mb-1">
-                <strong>Ngày:</strong> {order.orderDate}
+                <strong>NGÀY:</strong> {order.orderDate}
               </p>
               <p className="mb-1">
-                <strong>Trạng thái:</strong>{" "}
+                <strong>TRẠNG THÁI:</strong>{" "}
                 <span
                   className={`badge ${
-                    order.status === "Đã hoàn thành"
+                    order.status === "ĐÃ HOÀN THÀNH"
                       ? "bg-success"
-                      : order.status === "Đã Hủy"
+                      : order.status === "ĐÃ HỦY"
                       ? "bg-danger"
                       : "bg-warning text-dark"
                   }`}
@@ -154,16 +151,20 @@ const MyOrdersPage = () => {
                 data-bs-toggle="modal"
                 data-bs-target="#orderDetailModal"
               >
-                Xem chi tiết
+                XEM CHI TIẾT
               </button>
-              {order.status === "Chờ duyệt" && (
+              {order.status === "Chờ duyệt" ? (
                 <button
                   className="btn btn-sm btn-outline-danger"
                   onClick={() => handleShowConfirm(order.orderId)}
                 >
-                  Hủy đơn
+                  HỦY ĐƠN
                 </button>
-              )}
+              ) : order.status === "ĐÃ THANH TOÁN" ? (
+                <span className="px-3 py-1 text-sm font-semibold text-green-700 bg-green-100 rounded-lg shadow-sm">
+                  ✅ ĐÃ THANH TOÁN
+                </span>
+              ) : null}
             </div>
           </div>
         </div>
@@ -174,11 +175,11 @@ const MyOrdersPage = () => {
         tabIndex="-1"
         aria-hidden="true"
       >
-        <div className="modal-dialog modal-lg modal-dialog-centered">
+        <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">
-                📦 Chi tiết đơn #{selectedOrder?.orderId}
+                📦 CHI TIẾT ĐƠN #{selectedOrder?.orderId}
               </h5>
               <button
                 type="button"
@@ -192,17 +193,19 @@ const MyOrdersPage = () => {
                 <table className="table table-sm table-hover">
                   <thead>
                     <tr>
-                      <th>Sản phẩm</th>
-                      <th>SL</th>
-                      <th>Giá</th>
+                      <th>SẢN PHẨM</th>
+                      <th>ĐƠN GIÁ</th>
+                      <th>SỐ LƯỢNG</th>
+                      <th>THÀNH TIỀN</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedOrder.products.map((p) => (
                       <tr key={p.productId}>
                         <td>{p.productName}</td>
-                        <td>{p.amount}</td>
                         <td>{p.price.toLocaleString()} đ</td>
+                        <td>{p.amount}</td>
+                        <td>{p.total.toLocaleString()} đ</td>
                       </tr>
                     ))}
                   </tbody>
@@ -214,7 +217,6 @@ const MyOrdersPage = () => {
           </div>
         </div>
       </div>
-
       <div
         className="modal fade"
         id="cancelOrderModal"
@@ -224,7 +226,7 @@ const MyOrdersPage = () => {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Xác nhận hủy đơn hàng</h5>
+              <h5 className="modal-title">XÁC NHẬN HỦY ĐƠN HÀNG</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -233,14 +235,14 @@ const MyOrdersPage = () => {
               ></button>
             </div>
             <div className="modal-body">
-              <p>Bạn có chắc chắn muốn hủy đơn hàng #{orderToCancel}?</p>
+              <p>BẠN CÓ CHẮC MUỐN HỦY ĐƠN HÀNG #{orderToCancel}?</p>
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" data-bs-dismiss="modal">
-                Đóng
+                ĐÓNG
               </button>
               <button className="btn btn-danger" onClick={cancelOrder}>
-                Hủy đơn
+                HỦY ĐƠN
               </button>
             </div>
           </div>

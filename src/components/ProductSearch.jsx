@@ -91,7 +91,7 @@ const ProductSearch = ({ open, onClose }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.3rem" }}>
-        🔍 Bộ lọc sản phẩm
+        🔍 BỘ LỌC SẢN PHẨM
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={2}>
@@ -99,7 +99,7 @@ const ProductSearch = ({ open, onClose }) => {
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
-                Danh mục
+                DANH MỤC
               </Typography>
               <Divider sx={{ mb: 1 }} />
               {categories.map((cat) => (
@@ -125,7 +125,7 @@ const ProductSearch = ({ open, onClose }) => {
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
-                Thương hiệu
+                THƯƠNG HIỆU
               </Typography>
               <Divider sx={{ mb: 1 }} />
               {trademarks.map((t) => (
@@ -151,7 +151,7 @@ const ProductSearch = ({ open, onClose }) => {
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
-                Phiên bản
+                PHIÊN BẢN
               </Typography>
               <Divider sx={{ mb: 1 }} />
               {versions.map((v) => (
@@ -177,7 +177,7 @@ const ProductSearch = ({ open, onClose }) => {
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
-                Chi tiết
+                CHI TIẾT
               </Typography>
               <Divider sx={{ mb: 1 }} />
               {details.map((d) => (
@@ -202,20 +202,20 @@ const ProductSearch = ({ open, onClose }) => {
           </Grid>
         </Grid>
         <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-          📦 Kết quả tìm kiếm
+          KẾT QUẢ TÌM KIẾM
         </Typography>
         {products.length === 0 ? (
-          <Typography color="text.secondary">Chưa có sản phẩm</Typography>
+          <Typography color="text.secondary">CHƯA CÓ SẢN PHẨM</Typography>
         ) : (
           <TableContainer component={Paper} elevation={2}>
             <Table>
               <TableHead sx={{ bgcolor: "grey.200" }}>
                 <TableRow>
-                  <TableCell><b>Tên</b></TableCell>
-                  <TableCell><b>Ảnh</b></TableCell>
-                  <TableCell><b>Thương hiệu</b></TableCell>
-                  <TableCell><b>Danh mục</b></TableCell>
-                  <TableCell><b>Giá</b></TableCell>
+                  <TableCell><b>TÊN</b></TableCell>
+                  <TableCell><b>ẢNH</b></TableCell>
+                  <TableCell><b>THƯƠNG HIỆU</b></TableCell>
+                  <TableCell><b>DANH MỤC</b></TableCell>
+                  <TableCell><b>GIÁ</b></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -249,13 +249,13 @@ const ProductSearch = ({ open, onClose }) => {
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={handleSearch} variant="contained" color="primary">
-          Tìm kiếm
+          TÌM KIẾM
         </Button>
         <Button onClick={handleReset} variant="outlined" color="secondary">
-          Làm mới
+          LÀM MỚI
         </Button>
         <Button onClick={onClose} variant="outlined" color="error">
-          Đóng
+          ĐÓNG
         </Button>
       </DialogActions>
     </Dialog>
