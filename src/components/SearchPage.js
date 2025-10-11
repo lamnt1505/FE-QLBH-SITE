@@ -8,7 +8,6 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // API search
   const handleSearch = async (key) => {
     setLoading(true);
     setMessage("");
@@ -46,7 +45,7 @@ export default function CatalogPage() {
         products={products}
         loading={loading}
         message={message}
-        setProducts={setProducts} // để ProductGrid vẫn có thể fetch default
+        setProducts={setProducts}
         setLoading={setLoading}
         setMessage={setMessage}
       />

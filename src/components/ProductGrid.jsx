@@ -40,7 +40,14 @@ const ProductGrid = () => {
 
   const [stockList, setStockList] = useState([]);
 
+  const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
+  const [categories, setCategories] = useState([]);
+
   const accountID = 1;
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 5;
 
   const mapProduct = (p) => ({
     id: p.id,
@@ -54,22 +61,28 @@ const ProductGrid = () => {
       : "https://via.placeholder.com/150",
   });
 
-  const fetchProductsDefault = async () => {
+  const fetchProductsDefault = async (pageNum = 0) => {
+    setLoading(true);
     try {
       const res = await fetch(
-        "http://localhost:8080/dossier-statistic/list--Product"
+        `http://localhost:8080/dossier-statistic/products?page=${pageNum}&size=${pageSize}&sort=productID,asc`
       );
+      if (!res.ok) throw new Error("Lỗi khi gọi API phân trang!");
       const data = await res.json();
-      setProducts(data.map(mapProduct));
+
+      setProducts(data.content.map(mapProduct));
+      setCurrentPage(data.number);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Lỗi khi fetch sản phẩm:", error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProductsDefault();
+    fetchProductsDefault(0);
   }, [alert]);
 
   const fetchPriceDesc = async () => {
@@ -94,6 +107,41 @@ const ProductGrid = () => {
     );
     const data = await res.json();
     setProducts(data.map(mapProduct));
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:8080/api/v1/category/Listgetall"
+      );
+      if (!res.ok) throw new Error("Không thể tải danh mục");
+      const data = await res.json();
+      setCategories(data);
+    } catch (err) {
+      console.error("Lỗi khi tải danh mục:", err);
+    }
+  };
+
+  const handleOpenCategoryDialog = () => {
+    fetchCategories();
+    setOpenCategoryDialog(true);
+  };
+
+  const handleSelectCategory = async (categoryID) => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `http://localhost:8080/dossier-statistic/list--ProductById--Category--Filter/${categoryID}`,
+        { method: "POST" }
+      );
+      const data = await res.json();
+      setProducts(data.map(mapProduct));
+    } catch (err) {
+      console.error("Lỗi khi lọc theo danh mục:", err);
+    } finally {
+      setOpenCategoryDialog(false);
+      setLoading(false);
+    }
   };
 
   const toggleFavorite = async (productId) => {
@@ -217,7 +265,6 @@ const ProductGrid = () => {
       Toast.error("Không tìm thấy sản phẩm!");
     }
   };
-
   return (
     <div>
       <div className="filter-bar">
@@ -231,7 +278,7 @@ const ProductGrid = () => {
           }}
         >
           {[
-            { label: "TẤT CẢ", onClick: fetchProductsDefault },
+            { label: "LỌC THEO DANH MỤC: "},
             { label: "GIÁ ↑ THẤP ĐẾN CAO", onClick: fetchPriceAsc },
             { label: "GIÁ ↓ CAO ĐẾN THẤP", onClick: fetchPriceDesc },
             { label: "SẢN PHẨM MỚI / TỐT NHẤT", onClick: fetchNewBest },
@@ -251,27 +298,40 @@ const ProductGrid = () => {
               {btn.label}
             </Button>
           ))}
-              <Button
-      variant="outlined"
-      size="small"
-      sx={{
-        textTransform: "none",
-        fontSize: "0.8rem",
-        padding: "4px 10px",
-        minWidth: "unset",
-      }}
-      onClick={() => setOpenSearchDialog(true)}
-    >
-      🔍 TÌM KIẾM NÂNG CAO
-    </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            sx={{
+              textTransform: "none",
+              fontSize: "0.8rem",
+              padding: "4px 10px",
+              minWidth: "unset",
+            }}
+            onClick={() => setOpenSearchDialog(true)}
+          >
+            🔍 TÌM KIẾM NÂNG CAO
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            sx={{
+              textTransform: "none",
+              fontSize: "0.8rem",
+              padding: "4px 10px",
+              minWidth: "unset",
+            }}
+            onClick={handleOpenCategoryDialog}
+          >
+            📂 LỌC THEO DANH MỤC
+          </Button>
         </Box>
       </div>
       <div className="product-grid">
-          {loading ? (
-            <p>ĐANG TẢI DỮ LIỆU...</p>
-          ) : message ? (
-            <p style={{ textAlign: "center", color: "gray" }}>{message}</p>
-          ) : (
+        {loading ? (
+          <p>ĐANG TẢI DỮ LIỆU...</p>
+        ) : message ? (
+          <p style={{ textAlign: "center", color: "gray" }}>{message}</p>
+        ) : (
           products.map((product) => (
             <div
               key={product.id}
@@ -345,10 +405,10 @@ const ProductGrid = () => {
             </div>
           ))
         )}
-      <ProductSearch
-        open={openSearchDialog}
-        onClose={() => setOpenSearchDialog(false)}
-      />
+        <ProductSearch
+          open={openSearchDialog}
+          onClose={() => setOpenSearchDialog(false)}
+        />
         <Dialog open={openVote} onClose={() => setOpenVote(false)}>
           <DialogTitle>Đánh Giá Sản Phẩm</DialogTitle>
           <DialogContent>
@@ -472,8 +532,92 @@ const ProductGrid = () => {
           <DialogActions>
             <Button onClick={() => setOpenDetail(false)}>ĐÓNG</Button>
           </DialogActions>
-          
         </Dialog>
+        <Dialog
+          open={openCategoryDialog}
+          onClose={() => setOpenCategoryDialog(false)}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>📁 CHỌN DANH MỤC SẢN PHẨM</DialogTitle>
+          <DialogContent dividers>
+            {categories.length === 0 ? (
+              <p>Đang tải danh mục...</p>
+            ) : (
+              categories.map((cat) => (
+                <Button
+                  key={cat.id}
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    mb: 1,
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                  }}
+                  onClick={() => handleSelectCategory(cat.id)}
+                >
+                  {cat.name}
+                </Button>
+              ))
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenCategoryDialog(false)}>Đóng</Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+      <div className="pagination center">
+        {totalPages > 1 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "30px",
+              gap: "8px",
+              flexWrap: "wrap",
+            }}
+          >
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={currentPage === 0}
+              onClick={() => fetchProductsDefault(currentPage - 1)}
+              sx={{ textTransform: "none", borderRadius: "20px", px: 2 }}
+            >
+              ◀ Trang trước
+            </Button>
+
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <Button
+                  key={i}
+                  variant={i === currentPage ? "contained" : "outlined"}
+                  color={i === currentPage ? "primary" : "inherit"}
+                  size="small"
+                  sx={{
+                    minWidth: "35px",
+                    borderRadius: "50%",
+                    fontWeight: i === currentPage ? "bold" : "normal",
+                  }}
+                  onClick={() => fetchProductsDefault(i)}
+                >
+                  {i + 1}
+                </Button>
+              ))}
+            </div>
+
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={currentPage === totalPages - 1}
+              onClick={() => fetchProductsDefault(currentPage + 1)}
+              sx={{ textTransform: "none", borderRadius: "20px", px: 2 }}
+            >
+              Trang sau ▶
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

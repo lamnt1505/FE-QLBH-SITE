@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
-import "./CartPage.css";
+import "../styles/CartPage/CartPage.css";
 import { useNavigate } from "react-router-dom";
 import { updateQuantity } from "../redux/reducers/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
