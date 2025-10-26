@@ -14,6 +14,7 @@ const CartPage = () => {
   const { loading } = useSelector((state) => state.cart);
   const [discountedTotal, setDiscountedTotal] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showVnpayModal, setShowVnpayModal] = useState(false);
 
   const getValueOrFallback = (primary, fallback) => {
     if (primary && primary.trim() !== "") {
@@ -146,7 +147,7 @@ const CartPage = () => {
 
   const applyDiscount = async () => {
     if (!discountCode.trim()) {
-      alert.error("⚠ Vui lòng nhập mã giảm giá!");
+      alert.error("⚠️ Vui lòng nhập mã giảm giá!");
       return;
     }
     try {
@@ -166,15 +167,26 @@ const CartPage = () => {
 
       const data = await res.json();
 
+      if (!res.ok) {
+        alert.error(data.message || "❌ Mã giảm giá không hợp lệ!");
+        return;
+      }
+
       if (data.success) {
         setDiscountedTotal(data.discountedTotal);
-        alert.success("✅ " + data.message);
+
+        alert.success(
+          `✅ ${
+            data.message
+          }\nTổng sau giảm: ${data.discountedTotal.toLocaleString()}₫`
+        );
+        console.log("Chi tiết sản phẩm giảm giá:", data.discountedProducts);
       } else {
-        alert.error("❌ " + data.message);
+        alert.warning(data.message || "⚠️ Mã giảm giá không hợp lệ!");
       }
     } catch (err) {
-      console.error("Lỗi khi áp dụng mã giảm giá:", err);
-      alert.error("⚠ Lỗi hệ thống!");
+      console.error("❌ Lỗi khi áp dụng mã giảm giá:", err);
+      alert.error("⚠️ Đã xảy ra lỗi hệ thống, vui lòng thử lại!");
     }
   };
 
@@ -258,15 +270,12 @@ const CartPage = () => {
 
   const handleVnpayPaymentEdit = async () => {
     try {
-      const orderRes = await fetch(
-        "http://localhost:8080/orders/vnpay",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+      const orderRes = await fetch("http://localhost:8080/orders/vnpay", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
       const orderData = await orderRes.json();
 
       if (orderData.status !== "success") {
@@ -408,7 +417,6 @@ const CartPage = () => {
               </button>
             </div>
           </div>
-
           <div className="col-md-6 text-md-end text-center">
             <h4 className="fw-bold mb-3">
               {discountedTotal ? (
@@ -446,14 +454,30 @@ const CartPage = () => {
             </h4>
             <div className="d-flex gap-3 justify-content-md-end justify-content-center">
               <button
-                onClick={() => setShowModal(true)}
+                onClick={() => {
+                  const account = localStorage.getItem("accountName");
+                  if (!account) {
+                    alert.error("⚠ Bạn cần đăng nhập để đặt hàng!");
+                    setTimeout(() => navigate("/login"), 1500);
+                  } else {
+                    setShowModal(true);
+                  }
+                }}
                 className="btn btn-primary px-4"
               >
                 ĐẶT HÀNG
               </button>
               <button
                 className="btn btn-danger px-4"
-                onClick={handleVnpayPaymentEdit}
+                onClick={() => {
+                  const account = localStorage.getItem("accountName");
+                  if (!account) {
+                    alert.error("⚠ Bạn cần đăng nhập để thanh toán!");
+                    setTimeout(() => navigate("/login"), 1500);
+                  } else {
+                    setShowVnpayModal(true);
+                  }
+                }}
               >
                 THANH TOÁN VNPAY
               </button>
@@ -535,6 +559,87 @@ const CartPage = () => {
                   onClick={placeOrder}
                 >
                   XÁC NHẬN ĐẶT HÀNG
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showVnpayModal && (
+        <div className="modal fade show d-block" tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">THÔNG TIN THANH TOÁN VNPAY</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowVnpayModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="text"
+                  name="receiverName"
+                  placeholder="HỌ VÀ TÊN"
+                  value={formData.receiverName}
+                  onChange={handleChange}
+                  className="form-control mb-2"
+                />
+                <input
+                  type="text"
+                  name="receiverPhone"
+                  placeholder="SỐ ĐIỆN THOẠI"
+                  value={formData.receiverPhone}
+                  onChange={handleChange}
+                  className="form-control mb-2"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="EMAIL"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="form-control mb-2"
+                />
+                <input
+                  type="text"
+                  name="shippingAddress"
+                  placeholder="ĐỊA CHỈ GIAO HÀNG"
+                  value={formData.shippingAddress}
+                  onChange={handleChange}
+                  className="form-control mb-2"
+                />
+                <textarea
+                  name="note"
+                  placeholder="Ghi chú (không bắt buộc)"
+                  value={formData.note}
+                  onChange={handleChange}
+                  className="form-control"
+                ></textarea>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-outline-primary mb-3 w-100"
+                  onClick={handleGetFromAccount}
+                >
+                  LẤY THÔNG TIN TỪ TÀI KHOẢN
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowVnpayModal(false)}
+                >
+                  HỦY
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={handleVnpayPaymentEdit}
+                >
+                  XÁC NHẬN THANH TOÁN
                 </button>
               </div>
             </div>

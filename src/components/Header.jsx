@@ -11,6 +11,7 @@ const Header = ({ onSearch = () => {} }) => {
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const [accountID, setAccountID] = useState(null);
+
   const [searchKey, setSearchKey] = useState("");
   const alert = useAlert();
 
@@ -22,6 +23,17 @@ const Header = ({ onSearch = () => {} }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [key, setKey] = useState("");
+
+  const handleSearch = () => {
+    if (key.trim() === "") return;
+    console.log("Header gửi key:", key);
+    onSearch(key);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") handleSearch();
+  };
 
   useEffect(() => {
     const accId = localStorage.getItem("accountId");
@@ -149,7 +161,7 @@ const Header = ({ onSearch = () => {} }) => {
           <button
             className="btn"
             style={{
-              background: "linear-gradient(45deg, #4facfe, #00f2fe)",
+              background: "linear-gradient(45deg, #1976d2, #00f2fe)",
               color: "white",
               fontWeight: "bold",
               border: "none",
@@ -169,7 +181,7 @@ const Header = ({ onSearch = () => {} }) => {
             <div
               className="btn"
               style={{
-                background: "linear-gradient(45deg, #4facfe, #00f2fe)",
+                background: "linear-gradient(45deg, #1976d2, #00f2fe)",
                 color: "white",
                 fontWeight: "bold",
                 border: "none",
@@ -214,12 +226,13 @@ const Header = ({ onSearch = () => {} }) => {
         <div className="search-bar">
           <input
             type="text"
-            placeholder="Tìm sản phẩm"
-            value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
+            placeholder="TÌM SẢN PHẨM..."
+            value={key}
+            onChange={(e) => setKey(e.target.value)}
+            onKeyDown={handleKeyPress}
             className="form-control"
           />
-          <button onClick={() => onSearch(searchKey)}>🔍</button>
+          <button onClick={handleSearch}>🔍</button>
         </div>
 
         <div className="header-icons d-flex align-items-center gap-3">
@@ -283,6 +296,7 @@ const Header = ({ onSearch = () => {} }) => {
             <button
               className="btn btn-sm btn-primary"
               onClick={handleLoginClick}
+              style={{ background: "linear-gradient(45deg, #1976d2, #00f2fe)" }}
             >
               ĐĂNG NHẬP
             </button>

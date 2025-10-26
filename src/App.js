@@ -1,5 +1,4 @@
-// src/App.js
-import React from "react";
+import React, { useState } from "react";
 import "./App.css"; 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -15,10 +14,13 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import MyOrdersPage from "./components/MyOrdersPage";
 import PaymentResult from "./components/PaymentResult";
+import DiscountTicker from "./components/DiscountTicker";
+import SearchPage from "./components/SearchPage";
 
 import { transitions, positions, Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import UpdateProfileDialogPage from "./components/UpdateProfileDialog";
+
 const options = {
   position: positions.TOP_RIGHT,
   timeout: 3000,
@@ -27,11 +29,18 @@ const options = {
 };
 
 function App() {
+  const [searchKey, setSearchKey] = useState("");
+
+  const handleSearch = (key) => {
+    console.log("🔍 App nhận searchKey:", key);
+    setSearchKey(key);
+  };
   return (
     <AlertProvider template={AlertTemplate} {...options}>
     <Router>
       <div className="app">
-        <Header />
+        <Header onSearch={handleSearch}/>
+        <DiscountTicker />
         <div className="container">
           <SocialSidebar />
           <main>
@@ -39,10 +48,11 @@ function App() {
               <Route path="/index" element={
                   <>
                     <MainContent />
-                    <ProductGrid />
+                    <ProductGrid searchKey={searchKey}/>
                   </>
                 }
               />
+              <Route path="/search" element={<SearchPage />} />
               <Route path="/payment-result" element={<PaymentResult />} />
               <Route path="/updateProfile/:accountID" element={<UpdateProfileDialogPage />} />
               <Route path="/catalog/:categoryID" element={<CatalogPage />} />

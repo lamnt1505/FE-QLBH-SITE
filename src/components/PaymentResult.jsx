@@ -26,8 +26,8 @@ export default function PaymentResult() {
       ) : (
         <h2 style={{ color: "red" }}>❌ {result.message}</h2>
       )}
-      {result.amount && <p>Số tiền: {result.amount} VND</p>}
-      {result.orderId && <p>Mã đơn hàng: {result.orderId}</p>}
+      {result.amount && <p>SỐ TIỀN: {result.amount} VND</p>}
+      {result.orderId && <p>MÃ ĐƠN HÀNG: {result.orderId}</p>}
       <button
         onClick={() => navigate("/myorder")}
             className="btn"
@@ -41,7 +41,7 @@ export default function PaymentResult() {
               boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             }}
       >
-        Quay về đơn hàng của tôi
+        QUAY VỀ ĐƠN HÀNG CỦA TÔI
       </button>
     </div>
   );

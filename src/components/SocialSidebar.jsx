@@ -1,44 +1,61 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import { ref, onValue, push, set } from "firebase/database";
+import { db } from "../FirebaseConfig/firebaseConfig";
+import "../styles/ChatBox/ChatBox.css";
 const ChatWindow = ({ onClose }) => {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState([]);
+  const sender = localStorage.getItem("accountName") || "Khách";
 
-  const handleSend = async () => {
-    if (!message.trim()) return;
-    setSending(true);
-
-    try {
-      const sender = localStorage.getItem("accountName") || "Khách";
-
-      const res = await fetch(
-        "http://localhost:8080/api/chat/send?sender=" +
-          sender +
-          "&content=" +
-          encodeURIComponent(message),
-        {
-          method: "POST",
-        }
-      );
-
-      if (res.ok) {
-        setMessages((prev) => [
-          ...prev,
-          { sender, content: message, timestamp: Date.now() },
-        ]);
-        setMessage("");
-        alert("Đã gửi tới admin");
-      } else {
-        alert("Gửi tin nhắn thất bại");
-      }
-    } catch (err) {
-      console.error("Lỗi gửi chat:", err);
-      alert("⚠️ Lỗi kết nối server");
-    } finally {
-      setSending(false);
+useEffect(() => {
+  const chatRef = ref(db, "chat/conversations");
+  const unsubscribe = onValue(chatRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const list = Object.values(data)
+        .filter(
+          (m) =>
+            m.sender === sender ||
+            m.content?.startsWith(`(${sender})`)
+        )
+        .sort((a, b) => a.timestamp - b.timestamp);
+      setMessages(list);
+    } else {
+      setMessages([]);
     }
-  };
+  });
+  return () => unsubscribe();
+}, [sender]);
+
+useEffect(() => {
+  const chatBody = document.querySelector(".chat-body");
+  if (chatBody) {
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+}, [messages]);
+
+
+const handleSend = async () => {
+  if (!message.trim()) return;
+  setSending(true);
+
+  try {
+    const chatRef = ref(db, "chat/conversations");
+    const newMsgRef = push(chatRef);
+    await set(newMsgRef, {
+      sender,
+      content: message,
+      timestamp: Date.now(),
+    });
+    setMessage("");
+  } catch (err) {
+    console.error("Lỗi gửi chat:", err);
+    alert("⚠️ Lỗi khi gửi tin nhắn");
+  } finally {
+    setSending(false);
+  }
+};
 
   return (
     <div className="chat-window">
@@ -58,7 +75,7 @@ const ChatWindow = ({ onClose }) => {
               className={`chat-message ${
                 m.sender === (localStorage.getItem("accountName") || "Khách")
                   ? "me"
-                  : "admin"
+                  : "Admin"
               }`}
             >
               <strong>{m.sender}: </strong>
@@ -75,9 +92,10 @@ const ChatWindow = ({ onClose }) => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           disabled={sending}
+		  onKeyDown={(e) => e.key === "Enter" && handleSend()}
         />
         <button onClick={handleSend} disabled={sending}>
-          GỬI
+          {sending ? "Đang gửi..." : "GỬI"}
         </button>
       </div>
     </div>

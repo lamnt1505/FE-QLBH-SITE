@@ -121,7 +121,12 @@ const MyOrdersPage = () => {
         <div key={order.orderId} className="col-md-4 col-lg-3">
           <div className="card shadow-sm h-100">
             <div className="card-body">
-              <h6 className="card-title">Đơn #{order.orderId}</h6>
+              <h6 className="card-title">ĐƠN #{order.orderId}</h6>
+              {order.txnRef && (
+                <p className="mb-1 text-muted" style={{ fontSize: "0.85rem" }}>
+                  <strong>MÃ GIAO DỊCH:</strong> {order.txnRef}
+                </p>
+              )}
               <p className="mb-1">
                 <strong>NGÀY:</strong> {order.orderDate}
               </p>

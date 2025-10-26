@@ -9,6 +9,7 @@ const LoginPage = () => {
   const [captchaUrl, setCaptchaUrl] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const alert = useAlert();
 
@@ -60,7 +61,7 @@ const LoginPage = () => {
       if (data.success) {
         localStorage.setItem("accountName", accountName);
         localStorage.setItem("accountId", data.accountID);
-        
+
         console.log("Lưu accountID:", data.accountID);
 
         alert.success("Đăng nhập thành công!");
@@ -104,16 +105,28 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-3" style={{ position: "relative" }}>
             <label className="form-label">MẬT KHẨU</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="form-control"
               value={accountPass}
               onChange={(e) => setAccountPass(e.target.value)}
               required
               placeholder="NHẬP MẬT KHẨU"
             />
+            <i
+              className={`fa ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "38px",
+                cursor: "pointer",
+                color: "#555",
+              }}
+              title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+            ></i>
           </div>
 
           <div className="mb-3 d-flex align-items-center justify-content-between">
@@ -134,7 +147,7 @@ const LoginPage = () => {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-100 mb-2">
+          <button type="submit" className="btn btn-primary w-100 mb-2" style={{ background: "linear-gradient(45deg, #1976d2, #00f2fe)", }}>
             ĐĂNG NHẬP
           </button>
 

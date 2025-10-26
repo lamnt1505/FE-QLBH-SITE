@@ -13,23 +13,33 @@ import {
   MenuItem,
   Select,
   Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import Rating from "@mui/material/Rating";
 import { useAlert } from "react-alert";
 import { Toast } from "bootstrap";
 
-const ProductGrid = () => {
+const ProductGrid = ({ searchKey }) => {
   const alert = useAlert();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [message] = useState("");
+  const [message, setMessage] = useState("");
   const [openSearchDialog, setOpenSearchDialog] = useState(false);
-
   const [favorites, setFavorites] = useState([]);
-
   const [detailProduct, setProductDetail] = useState(null);
   const [branchID, setBranchID] = useState(1);
   const [stockByBranch, setStockByBranch] = useState(null);
+
+  const [filteredStocks, setFilteredStocks] = useState([]);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [cities, setCities] = useState([]);
+  const [districts, setDistricts] = useState([]);
 
   const [openVote, setOpenVote] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -48,6 +58,31 @@ const ProductGrid = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 5;
+
+  useEffect(() => {
+    if (selectedCity) {
+      const cityDistricts = [
+        ...new Set(
+          stockList
+            .filter((s) => s.city === selectedCity)
+            .map((s) => s.district)
+        ),
+      ];
+      setDistricts(cityDistricts);
+      setSelectedDistrict("");
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedCity, stockList]);
+
+  useEffect(() => {
+    let filtered = stockList;
+    if (selectedCity)
+      filtered = filtered.filter((s) => s.city === selectedCity);
+    if (selectedDistrict)
+      filtered = filtered.filter((s) => s.district === selectedDistrict);
+    setFilteredStocks(filtered);
+  }, [selectedCity, selectedDistrict, stockList]);
 
   const mapProduct = (p) => ({
     id: p.id,
@@ -84,6 +119,43 @@ const ProductGrid = () => {
   useEffect(() => {
     fetchProductsDefault(0);
   }, [alert]);
+
+  useEffect(() => {
+    if (!searchKey.trim()) return;
+
+    const delayDebounce = setTimeout(async () => {
+      setLoading(true);
+      setMessage("");
+      try {
+        console.log("🔍 Gọi API tìm kiếm với key:", searchKey);
+        const response = await fetch(
+          "http://localhost:8080/api/v1/product/search",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: searchKey }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          setMessage(errorData.message || "Không tìm thấy sản phẩm nào.");
+          setProducts([]);
+          return;
+        }
+
+        const data = await response.json();
+        setProducts(data.map(mapProduct));
+      } catch (error) {
+        console.error("🚫 Lỗi fetch sản phẩm:", error);
+        setMessage("Đã xảy ra lỗi khi tìm kiếm sản phẩm.");
+      } finally {
+        setLoading(false);
+      }
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchKey]);
 
   const fetchPriceDesc = async () => {
     const res = await fetch(
@@ -252,11 +324,17 @@ const ProductGrid = () => {
       if (!stockRes.ok) throw new Error("Không lấy được danh sách tồn kho");
       const stockData = await stockRes.json();
       setStockList(stockData);
+      setFilteredStocks(stockData);
+
+      const uniqueCities = [...new Set(stockData.map((s) => s.city))];
+      setCities(uniqueCities);
+      setSelectedCity("");
+      setSelectedDistrict("");
 
       if (stockData.length > 0 && data?.id) {
         const defaultBranch = stockData[0].branchID;
         setBranchID(defaultBranch);
-        fetchStockByBranch(defaultBranch, data.id);
+        await fetchStockByBranch(defaultBranch, data.id);
       }
 
       setOpenDetail(true);
@@ -265,6 +343,7 @@ const ProductGrid = () => {
       Toast.error("Không tìm thấy sản phẩm!");
     }
   };
+
   return (
     <div>
       <div className="filter-bar">
@@ -278,7 +357,7 @@ const ProductGrid = () => {
           }}
         >
           {[
-            { label: "LỌC THEO DANH MỤC: "},
+            { label: "LỌC THEO DANH MỤC: " },
             { label: "GIÁ ↑ THẤP ĐẾN CAO", onClick: fetchPriceAsc },
             { label: "GIÁ ↓ CAO ĐẾN THẤP", onClick: fetchPriceDesc },
             { label: "SẢN PHẨM MỚI / TỐT NHẤT", onClick: fetchNewBest },
@@ -450,85 +529,114 @@ const ProductGrid = () => {
         >
           <DialogTitle>CHI TIẾT SẢN PHẨM</DialogTitle>
           <DialogContent>
-            {detailProduct && (
-              <div>
-                <img
+          {detailProduct ? (
+            <>
+			    <img
                   src={`data:image/jpeg;base64,${detailProduct.imageBase64}`}
                   alt={detailProduct.name}
                   style={{ width: "100%", marginBottom: "16px" }}
                 />
-                <p>
-                  <b>TÊN:</b> {detailProduct.name}
-                </p>
-                <p>
-                  <b>MÔ TẢ:</b> {detailProduct.description}
-                </p>
-                <p>
-                  <b>GIÁ:</b> {detailProduct.price.toLocaleString("vi-VN")} ₫
-                </p>
-                <p>
-                  <b>NGÀY SẢN XUẤT:</b> {detailProduct.date_product}
-                </p>
-                <p>
-                  <b>DANH MỤC:</b> {detailProduct.categoryname}
-                </p>
-                <p>
-                  <b>THƯƠNG HIỆU:</b> {detailProduct.tradeName}
-                </p>
-                <div style={{ marginTop: "16px" }}>
-                  <b>Tình trạng tồn kho:</b>{" "}
-                  {stockList && stockList.length > 0 ? (
-                    <span style={{ color: "green" }}>
-                      Có hàng tại{" "}
-                      {stockList.filter((s) => s.quantity > 0).length} chi nhánh
-                    </span>
-                  ) : (
-                    <span style={{ color: "red" }}>
-                      Hết hàng tại tất cả chi nhánh
-                    </span>
-                  )}
-                </div>
-                <div style={{ marginTop: "16px" }}>
-                  <b>CHỌN CHI NHÁNH:</b>
-                  <Select
-                    value={branchID}
-                    onChange={(e) => {
-                      const newBranch = e.target.value;
-                      setBranchID(newBranch);
-                      fetchStockByBranch(newBranch, detailProduct.id);
-                    }}
-                    style={{ marginLeft: "10px", minWidth: "200px" }}
-                  >
-                    {stockList &&
-                      stockList.map((branch) => (
-                        <MenuItem key={branch.branchID} value={branch.branchID}>
-                          {branch.branchName} ({branch.city} - {branch.district}
-                          )
-                        </MenuItem>
-                      ))}
-                  </Select>
-                </div>
+              <Typography variant="h6">
+                <b>TÊN SẢN PHẨM:</b> {detailProduct.name}
+              </Typography>
+              <Typography fontWeight="body">
+                <b color="green" >GIÁ TIỀN:</b> {detailProduct.price?.toLocaleString("vi-VN")} ₫
+              </Typography>
+              <Typography variant="h6">
+                <b>DANH MỤC:</b> {detailProduct.categoryname}
+              </Typography>
+              <Typography variant="h6">
+                <b>THƯƠNG HIỆU:</b> {detailProduct.tradeName}
+              </Typography>
+              <Typography sx={{ mb: 2 }} variant="h6">
+                <b>Mô tả:</b> {detailProduct.description}
+              </Typography>
+              <Box
+                sx={{
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  marginBottom: "16px",
+                }}
+              >
+                <Typography fontWeight="bold">
+                  🔎 CHI NHÁNH CỬA HÀNG
+                </Typography>
+                <Typography sx={{ fontSize: 14, color: "gray", mb: 1 }}>
+                  CÓ{" "}
+                  <span style={{ color: "blue", fontWeight: "bold" }}>
+                    {filteredStocks.filter((s) => s.quantity > 0).length}
+                  </span>{" "}
+                  CỬA HÀNG SẢN PHẨM
+                </Typography>
 
-                <div style={{ marginTop: "12px" }}>
-                  {stockByBranch ? (
-                    <p
-                      style={{
-                        color:
-                          stockByBranch.status === "in_stock" ? "green" : "red",
-                      }}
-                    >
-                      <b>TỒN KHO:</b> {stockByBranch.message} (
-                      {stockByBranch.quantity} SẢN PHẨM)
-                    </p>
-                  ) : (
-                    <p style={{ color: "gray" }}>
-                      VUI LÒNG CHỌN CHI NHÁNH ĐỂ XEM TỒN KHO
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-          </DialogContent>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Select
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    displayEmpty
+                    sx={{ flex: 1 }}
+                  >
+                    <MenuItem value="">-- Chọn Tỉnh/Thành phố --</MenuItem>
+                    {cities.map((city) => (
+                      <MenuItem key={city} value={city}>
+                        {city}
+                      </MenuItem>
+                    ))}
+                  </Select>
+
+                  <Select
+                    value={selectedDistrict}
+                    onChange={(e) => setSelectedDistrict(e.target.value)}
+                    displayEmpty
+                    sx={{ flex: 1 }}
+                    disabled={!selectedCity}
+                  >
+                    <MenuItem value="">-- Chọn Quận/Huyện --</MenuItem>
+                    {districts.map((d) => (
+                      <MenuItem key={d} value={d}>
+                        {d}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Box>
+              </Box>
+
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Chi nhánh</TableCell>
+                    <TableCell align="center">Tỉnh/TP</TableCell>
+                    <TableCell align="center">Quận/Huyện</TableCell>
+                    <TableCell align="center">Số lượng</TableCell>
+                    <TableCell align="center">Trạng thái</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredStocks.map((s) => (
+                    <TableRow key={s.branchID}>
+                      <TableCell>{s.branchName}</TableCell>
+                      <TableCell align="center">{s.city}</TableCell>
+                      <TableCell align="center">{s.district}</TableCell>
+                      <TableCell align="center">{s.quantity}</TableCell>
+                      <TableCell
+                        align="center"
+                        style={{
+                          color: s.quantity > 0 ? "green" : "red",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {s.quantity > 0 ? "✅ Còn hàng" : "❌ Hết hàng"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </>
+          ) : (
+            <Typography align="center">Đang tải chi tiết...</Typography>
+          )}
+        </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenDetail(false)}>ĐÓNG</Button>
           </DialogActions>
