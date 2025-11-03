@@ -191,7 +191,7 @@ const Header = ({ onSearch = () => {} }) => {
               }}
               onClick={toggleMenu}
             >
-              MENU
+              LOẠI SẢN PHẨM
             </div>
             {isMenuOpen && (
               <div
@@ -240,12 +240,20 @@ const Header = ({ onSearch = () => {} }) => {
             <BsCart3 /> <span>{cartQuantity}</span>
           </div>
           {username && (
-            <button
-              className="btn btn-sm btn-outline-primary"
-              onClick={() => navigate("/myorder")}
-            >
-              ĐƠN HÀNG CỦA TÔI
-            </button>
+            <>
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => navigate(`/favorites/${accountID}`)}
+              >
+                ❤️ DANH SÁCH YÊU THÍCH
+              </button>
+              <button
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => navigate("/myorder")}
+              >
+                ĐƠN HÀNG CỦA TÔI
+              </button>
+            </>
           )}
 
           {username ? (

@@ -388,7 +388,13 @@ const CartPage = () => {
               )}
             </tbody>
           </table>
-          <div className="text-end p-3">
+          <div className="text-end p-3 d-flex justify-content-end gap-2">
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate("/index")}
+            >
+              TIẾP TỤC MUA HÀNG
+            </button>
             <button
               className="btn btn-primary"
               onClick={handleUpdateCart}

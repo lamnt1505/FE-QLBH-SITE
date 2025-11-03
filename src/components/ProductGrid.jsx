@@ -3,6 +3,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
 import ProductSearch from "./ProductSearch";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -19,12 +20,14 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Stack,
 } from "@mui/material";
 import Rating from "@mui/material/Rating";
 import { useAlert } from "react-alert";
 import { Toast } from "bootstrap";
 
 const ProductGrid = ({ searchKey }) => {
+  const navigate = useNavigate();
   const alert = useAlert();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +56,7 @@ const ProductGrid = ({ searchKey }) => {
   const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
   const [categories, setCategories] = useState([]);
 
-  const accountID = 1;
+  const accountID = localStorage.getItem("accountId") || null;
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -477,7 +480,13 @@ const ProductGrid = ({ searchKey }) => {
                       setOpenVote(true);
                     }}
                   >
-                    ĐÁNH GIÁ
+                    ⭐ ĐÁNH GIÁ
+                  </button>
+                  <button
+                    className="btn-detail"
+                    onClick={() => navigate(`/product/${product.id}`)}
+                  >
+                    🔍 XEM CHI TIẾT
                   </button>
                 </div>
               </div>
@@ -529,114 +538,115 @@ const ProductGrid = ({ searchKey }) => {
         >
           <DialogTitle>CHI TIẾT SẢN PHẨM</DialogTitle>
           <DialogContent>
-          {detailProduct ? (
-            <>
-			    <img
+            {detailProduct ? (
+              <>
+                <img
                   src={`data:image/jpeg;base64,${detailProduct.imageBase64}`}
                   alt={detailProduct.name}
                   style={{ width: "100%", marginBottom: "16px" }}
                 />
-              <Typography variant="h6">
-                <b>TÊN SẢN PHẨM:</b> {detailProduct.name}
-              </Typography>
-              <Typography fontWeight="body">
-                <b color="green" >GIÁ TIỀN:</b> {detailProduct.price?.toLocaleString("vi-VN")} ₫
-              </Typography>
-              <Typography variant="h6">
-                <b>DANH MỤC:</b> {detailProduct.categoryname}
-              </Typography>
-              <Typography variant="h6">
-                <b>THƯƠNG HIỆU:</b> {detailProduct.tradeName}
-              </Typography>
-              <Typography sx={{ mb: 2 }} variant="h6">
-                <b>Mô tả:</b> {detailProduct.description}
-              </Typography>
-              <Box
-                sx={{
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: "12px",
-                  padding: "16px",
-                  marginBottom: "16px",
-                }}
-              >
-                <Typography fontWeight="bold">
-                  🔎 CHI NHÁNH CỬA HÀNG
+                <Typography variant="h6">
+                  <b>TÊN SẢN PHẨM:</b> {detailProduct.name}
                 </Typography>
-                <Typography sx={{ fontSize: 14, color: "gray", mb: 1 }}>
-                  CÓ{" "}
-                  <span style={{ color: "blue", fontWeight: "bold" }}>
-                    {filteredStocks.filter((s) => s.quantity > 0).length}
-                  </span>{" "}
-                  CỬA HÀNG SẢN PHẨM
+                <Typography fontWeight="body">
+                  <b color="green">GIÁ TIỀN:</b>{" "}
+                  {detailProduct.price?.toLocaleString("vi-VN")} ₫
                 </Typography>
+                <Typography variant="h6">
+                  <b>DANH MỤC:</b> {detailProduct.categoryname}
+                </Typography>
+                <Typography variant="h6">
+                  <b>THƯƠNG HIỆU:</b> {detailProduct.tradeName}
+                </Typography>
+                <Typography sx={{ mb: 2 }} variant="h6">
+                  <b>Mô tả:</b> {detailProduct.description}
+                </Typography>
+                <Box
+                  sx={{
+                    backgroundColor: "#f9f9f9",
+                    borderRadius: "12px",
+                    padding: "16px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <Typography fontWeight="bold">
+                    🔎 CHI NHÁNH CỬA HÀNG
+                  </Typography>
+                  <Typography sx={{ fontSize: 14, color: "gray", mb: 1 }}>
+                    CÓ{" "}
+                    <span style={{ color: "blue", fontWeight: "bold" }}>
+                      {filteredStocks.filter((s) => s.quantity > 0).length}
+                    </span>{" "}
+                    CỬA HÀNG SẢN PHẨM
+                  </Typography>
 
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    displayEmpty
-                    sx={{ flex: 1 }}
-                  >
-                    <MenuItem value="">-- Chọn Tỉnh/Thành phố --</MenuItem>
-                    {cities.map((city) => (
-                      <MenuItem key={city} value={city}>
-                        {city}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Select
+                      value={selectedCity}
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      displayEmpty
+                      sx={{ flex: 1 }}
+                    >
+                      <MenuItem value="">-- Chọn Tỉnh/Thành phố --</MenuItem>
+                      {cities.map((city) => (
+                        <MenuItem key={city} value={city}>
+                          {city}
+                        </MenuItem>
+                      ))}
+                    </Select>
 
-                  <Select
-                    value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
-                    displayEmpty
-                    sx={{ flex: 1 }}
-                    disabled={!selectedCity}
-                  >
-                    <MenuItem value="">-- Chọn Quận/Huyện --</MenuItem>
-                    {districts.map((d) => (
-                      <MenuItem key={d} value={d}>
-                        {d}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    <Select
+                      value={selectedDistrict}
+                      onChange={(e) => setSelectedDistrict(e.target.value)}
+                      displayEmpty
+                      sx={{ flex: 1 }}
+                      disabled={!selectedCity}
+                    >
+                      <MenuItem value="">-- Chọn Quận/Huyện --</MenuItem>
+                      {districts.map((d) => (
+                        <MenuItem key={d} value={d}>
+                          {d}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Box>
                 </Box>
-              </Box>
 
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Chi nhánh</TableCell>
-                    <TableCell align="center">Tỉnh/TP</TableCell>
-                    <TableCell align="center">Quận/Huyện</TableCell>
-                    <TableCell align="center">Số lượng</TableCell>
-                    <TableCell align="center">Trạng thái</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredStocks.map((s) => (
-                    <TableRow key={s.branchID}>
-                      <TableCell>{s.branchName}</TableCell>
-                      <TableCell align="center">{s.city}</TableCell>
-                      <TableCell align="center">{s.district}</TableCell>
-                      <TableCell align="center">{s.quantity}</TableCell>
-                      <TableCell
-                        align="center"
-                        style={{
-                          color: s.quantity > 0 ? "green" : "red",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {s.quantity > 0 ? "✅ Còn hàng" : "❌ Hết hàng"}
-                      </TableCell>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Chi nhánh</TableCell>
+                      <TableCell align="center">Tỉnh/TP</TableCell>
+                      <TableCell align="center">Quận/Huyện</TableCell>
+                      <TableCell align="center">Số lượng</TableCell>
+                      <TableCell align="center">Trạng thái</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </>
-          ) : (
-            <Typography align="center">Đang tải chi tiết...</Typography>
-          )}
-        </DialogContent>
+                  </TableHead>
+                  <TableBody>
+                    {filteredStocks.map((s) => (
+                      <TableRow key={s.branchID}>
+                        <TableCell>{s.branchName}</TableCell>
+                        <TableCell align="center">{s.city}</TableCell>
+                        <TableCell align="center">{s.district}</TableCell>
+                        <TableCell align="center">{s.quantity}</TableCell>
+                        <TableCell
+                          align="center"
+                          style={{
+                            color: s.quantity > 0 ? "green" : "red",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {s.quantity > 0 ? "✅ Còn hàng" : "❌ Hết hàng"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            ) : (
+              <Typography align="center">Đang tải chi tiết...</Typography>
+            )}
+          </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenDetail(false)}>ĐÓNG</Button>
           </DialogActions>

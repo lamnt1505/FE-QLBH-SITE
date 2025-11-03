@@ -55,52 +55,107 @@ const CatalogPage = () => {
   if (loading) return <p className="text-center mt-4">ĐANG TẢI...</p>;
 
   return (
-    <div className="container py-5">
-      <div className="row">
-        <div className="col-12 text-center mb-5">
-          <h2 className="section-title text-center">
-            SẢN PHẨM THEO DANH MỤC #{categoryID}
-          </h2>
-        </div>
+    <div
+      className="container mt-4"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div
+        className="product-category-title text-center mb-4"
+        style={{
+          width: "100%",
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            fontWeight: "400",
+            fontSize: "2.2rem",
+            letterSpacing: "0.5px",
+            color: "#222",
+            marginBottom: "0",
+            display: "inline-block",
+            borderBottom: "2px solid #1976d2",
+            paddingBottom: "8px",
+          }}
+        >
+          SẢN PHẨM THEO DANH MỤC #{categoryID}
+        </h2>
       </div>
 
-      {/* Danh sách sản phẩm */}
-      <div className="row g-4">
+      {/* --- DANH SÁCH SẢN PHẨM --- */}
+      <div style={{ width: "100%", clear: "both" }}>
         {products.length === 0 ? (
-          <div className="col-12 text-center text-muted">
-            KHÔNG CÓ SẢN PHẨM NÀO
+          <div className="alert alert-info text-center">
+            Không có sản phẩm nào trong danh mục này.
           </div>
         ) : (
-          products.map((p, index) => (
-            <div className="col-6 col-md-4 col-lg-3" key={index}>
-              <div className="card product-card h-100">
-                <div className="product-img-wrapper">
-                  <img
-                    src={`data:image/png;base64,${p.imageBase64}`}
-                    alt={p.productName}
-                    className="product-img"
-                  />
-                </div>
-                <div className="card-body text-center d-flex flex-column">
-                  <h6 className="product-title">{p.productName}</h6>
-                  <p className="fw-bold text-danger mb-2">
-                    {p.price.toLocaleString()} đ
-                  </p>
-                  <button
-                    className="btn btn-buy mt-auto"
-                    onClick={() => handleBuy(p.productID)}
-                    disabled={cartState.status === "loading"}
-                  >
-                    {cartState.status === "loading"
-                      ? "Đang thêm..."
-                      : "MUA NGAY"}
-                  </button>
-                  {/* onClick={() => getProductDetailsFromAPI(p.productID)}*/}
-                  <button className="btn btn-outline-secondary"  style={{ marginTop: "8px" }}>So sánh</button>
-                </div>
-              </div>
-            </div>
-          ))
+          <div className="table-responsive">
+            <table className="table table-bordered align-middle text-center shadow-sm">
+              <thead className="table-light">
+                <tr>
+                  <th style={{ width: "120px" }}>Hình ảnh</th>
+                  <th>Tên sản phẩm</th>
+                  <th style={{ width: "150px" }}>Giá</th>
+                  <th style={{ width: "180px" }}>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((item) => (
+                  <tr key={item.productID}>
+                    <td>
+                      <img
+                        src={`data:image/png;base64,${item.imageBase64}`}
+                        alt={item.productName}
+                        style={{
+                          width: "80px",
+                          height: "80px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </td>
+                    <td
+                      style={{
+                        fontWeight: "500",
+                        fontSize: "1rem",
+                        color: "#333",
+                        textAlign: "left",
+                      }}
+                    >
+                      {item.productName}
+                    </td>
+                    <td
+                      style={{
+                        fontWeight: "600",
+                        color: "#1976d2",
+                      }}
+                    >
+                      {item.price
+                        ? `${item.price.toLocaleString("vi-VN")} VND`
+                        : "—"}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-primary btn-sm me-2"
+                        onClick={() => handleBuy(item.productID)}
+                        disabled={cartState.status === "loading"}
+                      >
+                        {cartState.status === "loading"
+                          ? "Đang thêm..."
+                          : "Mua ngay"}
+                      </button>
+                      <button className="btn btn-outline-secondary btn-sm">
+                        So sánh
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

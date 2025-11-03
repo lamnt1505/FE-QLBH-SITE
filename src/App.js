@@ -16,6 +16,8 @@ import MyOrdersPage from "./components/MyOrdersPage";
 import PaymentResult from "./components/PaymentResult";
 import DiscountTicker from "./components/DiscountTicker";
 import SearchPage from "./components/SearchPage";
+import FavoriteList from "./components/FavoriteList"; 
+import ProductDetailPage from "./components/ProductDetailPage";
 
 import { transitions, positions, Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
@@ -52,6 +54,8 @@ function App() {
                   </>
                 }
               />
+              <Route path="/favorites/:accountID" element={<FavoriteList />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/payment-result" element={<PaymentResult />} />
               <Route path="/updateProfile/:accountID" element={<UpdateProfileDialogPage />} />
