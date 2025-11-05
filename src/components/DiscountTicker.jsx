@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Box, Typography } from "@mui/material";
+import API_BASE_URL from "../config/config.js";
 
 const DiscountTicker = () => {
   const [discount, setDiscount] = useState(null);
@@ -8,9 +9,9 @@ const DiscountTicker = () => {
   useEffect(() => {
     const fetchLatestDiscount = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/discounts/latest");
+        const res = await axios.get(`${API_BASE_URL}/api/v1/discounts/latest`);
         if (res.data.success) {
-          setDiscount(res.data); // Gán toàn bộ object để hiển thị thêm thông tin
+          setDiscount(res.data);
         }
       } catch (err) {
         console.error("Không thể lấy mã giảm giá:", err);

@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import API_BASE_URL from "../../config/config.js";
 
 export const updateQuantity = createAsyncThunk(
   "cart/updateQuantity",
   async ({ productID, amount }, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        "http://localhost:8080/dossier-statistic/update--quantities",
+        `${API_BASE_URL}/dossier-statistic/update--quantities`,
         null,
         {
           params: { productID, amount },

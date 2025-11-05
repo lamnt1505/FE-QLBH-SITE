@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/config.js";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     accountName: "",
     accountPass: "",
@@ -10,27 +12,34 @@ const RegisterPage = () => {
     email: "",
     phoneNumber: "",
     dateOfBirth: "",
-    local: ""
+    local: "",
   });
+
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
+
   const validatePassword = (password) => {
     const hasUppercase = /[A-Z]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password); 
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
     return hasUppercase || hasSpecialChar;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
 
     if (!validatePassword(formData.accountPass)) {
-      setMessage("Mật khẩu phải có ít nhất 1 chữ hoa hoặc 1 ký tự đặc biệt!");
+      setMessage(
+        "❌ Mật khẩu phải có ít nhất 1 chữ hoa hoặc 1 ký tự đặc biệt!"
+      );
       return;
     }
 
@@ -38,27 +47,28 @@ const RegisterPage = () => {
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
-    if (image) {
-      data.append("image", image);
-    }
+
+    if (image) data.append("image", image);
 
     try {
-      const res = await fetch("http://localhost:8080/api/v1/account/add", {
+      const res = await fetch(`${API_BASE_URL}/api/v1/account/add`, {
         method: "POST",
         body: data,
       });
 
       const result = await res.json();
-      setMessage(result.message);
-
-      if (res.ok) {
-        setTimeout(() => {
-          window.location.href = "/login"; 
-        }, 2000);
+      if (!res.ok) {
+        setMessage(`❌ ${result.message}`);
+        return;
       }
+
+      setMessage(`✅ ${result.message}`);
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 2000);
     } catch (err) {
       console.error("Lỗi đăng ký:", err);
-      setMessage("Có lỗi xảy ra, vui lòng thử lại!");
+      setMessage("❌ Có lỗi kết nối server, vui lòng thử lại!");
     }
   };
 
@@ -137,7 +147,7 @@ const RegisterPage = () => {
           <button type="submit" className="btn btn-success w-100 mb-2">
             ĐĂNG KÝ
           </button>
-                    <button
+          <button
             type="button"
             className="btn btn-outline-secondary w-100"
             onClick={() => navigate("/login")}

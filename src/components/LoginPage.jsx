@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
+import API_BASE_URL from "../config/config.js";
 
 const LoginPage = () => {
   const [accountName, setAccountName] = useState("");
@@ -15,7 +16,7 @@ const LoginPage = () => {
 
   const refreshCaptcha = () => {
     setCaptchaUrl(
-      `http://localhost:8080/api/v1/account/captcha?${new Date().getTime()}`
+      `${API_BASE_URL}/api/v1/account/captcha?${new Date().getTime()}`
     );
   };
 
@@ -28,7 +29,7 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8080/api/v1/account/login", {
+      const res = await fetch(`${API_BASE_URL}/api/v1/account/login`, {
         method: "POST",
         credentials: "include",
         headers: {

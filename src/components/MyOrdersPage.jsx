@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Modal } from "bootstrap";
 import { useAlert } from "react-alert";
+import API_BASE_URL from "../config/config.js";
 
 const MyOrdersPage = () => {
   const alert = useAlert();
@@ -12,6 +13,9 @@ const MyOrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [orderToCancel, setOrderToCancel] = useState(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 8;
 
   useEffect(() => {
     fetchOrders().finally(() => setLoading(false));
@@ -27,7 +31,7 @@ const MyOrdersPage = () => {
       return;
     }
 
-    fetch(`http://localhost:8080/orders/account/${accountId}`, {
+    fetch(`${API_BASE_URL}/orders/account/${accountId}`, {
       credentials: "include",
     })
       .then((res) => {
@@ -48,7 +52,7 @@ const MyOrdersPage = () => {
       if (isNaN(accountId)) return;
 
       const res = await fetch(
-        `http://localhost:8080/orders/account/${accountId}`,
+        `${API_BASE_URL}/orders/account/${accountId}`,
         {
           credentials: "include",
         }
@@ -63,7 +67,7 @@ const MyOrdersPage = () => {
 
   const fetchOrderDetails = async (orderId) => {
     try {
-      const res = await fetch(`http://localhost:8080/orders/${orderId}`, {
+      const res = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Không tìm thấy chi tiết đơn hàng");
@@ -90,7 +94,7 @@ const MyOrdersPage = () => {
     if (!orderToCancel) return;
     try {
       const res = await fetch(
-        `http://localhost:8080/dossier-statistic/cancel-order?orderID=${orderToCancel}`,
+        `${API_BASE_URL}/dossier-statistic/cancel-order?orderID=${orderToCancel}`,
         {
           method: "POST",
           credentials: "include",
@@ -115,9 +119,40 @@ const MyOrdersPage = () => {
 
   if (loading) return <p className="text-center mt-4">⏳ ĐANG TẢI...</p>;
 
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
   return (
     <div className="row g-3">
-      {orders.map((order) => (
+      <div className="text-center mb-4">
+        <h2
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            fontWeight: "500",
+            fontSize: "2rem",
+            letterSpacing: "0.5px",
+            color: "#0f12daff",
+            marginBottom: "0",
+            display: "inline-block",
+            borderBottom: "2px solid #1976d2",
+            paddingBottom: "8px",
+          }}
+        >
+          ĐƠN HÀNG CỦA TÔI
+        </h2>
+      </div>
+      {currentOrders.map((order) => (
         <div key={order.orderId} className="col-md-4 col-lg-3">
           <div className="card shadow-sm h-100">
             <div className="card-body">
@@ -253,6 +288,41 @@ const MyOrdersPage = () => {
           </div>
         </div>
       </div>
+      {orders.length > ordersPerPage && (
+        <div className="d-flex justify-content-center align-items-center mt-4 gap-3">
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            ⏮ VỀ TRANG ĐẦU
+          </button>
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+          >
+            ← TRANG TRƯỚC
+          </button>
+          <span>
+            TRANG {currentPage} / {totalPages}
+          </span>
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+          >
+            TRANG SAU →
+          </button>
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            ĐẾN TRANG CUỐI ⏭
+          </button>
+        </div>
+      )}
     </div>
   );
 };

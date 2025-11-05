@@ -4,6 +4,7 @@ import "../styles/CartPage/CartPage.css";
 import { useNavigate } from "react-router-dom";
 import { updateQuantity } from "../redux/reducers/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
+import API_BASE_URL from "../config/config.js";
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -28,7 +29,7 @@ const CartPage = () => {
       const accountID = localStorage.getItem("accountId");
 
       const res = await fetch(
-        `http://localhost:8080/address/account/${accountID}`,
+        `${API_BASE_URL}/address/account/${accountID}`,
         { credentials: "include" }
       );
       if (!res.ok) throw new Error("Lỗi lấy thông tin tài khoản");
@@ -60,7 +61,7 @@ const CartPage = () => {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await fetch("http://localhost:8080/product-cart", {
+        const res = await fetch(`${API_BASE_URL}/product-cart`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -111,7 +112,7 @@ const CartPage = () => {
   const removeItem = async (id) => {
     try {
       const res = await fetch(
-        "http://localhost:8080/dossier-statistic/update--quantities",
+        `${API_BASE_URL}/dossier-statistic/update--quantities`,
         {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -151,7 +152,7 @@ const CartPage = () => {
       return;
     }
     try {
-      const res = await fetch("http://localhost:8080/dossier-statistic/apply", {
+      const res = await fetch(`${API_BASE_URL}/dossier-statistic/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -214,7 +215,7 @@ const CartPage = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:8080/dossier-statistic/orders",
+        `${API_BASE_URL}/dossier-statistic/orders`,
         {
           method: "POST",
           credentials: "include",
@@ -246,7 +247,7 @@ const CartPage = () => {
 
   const handleVnpayPayment = async () => {
     try {
-      const res = await fetch("http://localhost:8080/create-payment", {
+      const res = await fetch(`${API_BASE_URL}/create-payment`, {
         method: "POST",
         credentials: "include",
       });
@@ -270,7 +271,7 @@ const CartPage = () => {
 
   const handleVnpayPaymentEdit = async () => {
     try {
-      const orderRes = await fetch("http://localhost:8080/orders/vnpay", {
+      const orderRes = await fetch(`${API_BASE_URL}/orders/vnpay`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -284,7 +285,7 @@ const CartPage = () => {
       }
 
       const payRes = await fetch(
-        `http://localhost:8080/create-payment?txnRef=${orderData.txnRef}`,
+        `${API_BASE_URL}/create-payment?txnRef=${orderData.txnRef}`,
         {
           method: "POST",
           credentials: "include",

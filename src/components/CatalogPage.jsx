@@ -4,6 +4,7 @@ import "../styles/CatalogPage/CatalogPage.css";
 import { insertCart } from "../redux/reducers/cartReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
+import API_BASE_URL from "../config/config.js";
 
 const CatalogPage = () => {
   const { categoryID } = useParams();
@@ -12,6 +13,9 @@ const CatalogPage = () => {
   const dispatch = useDispatch();
   const cartState = useSelector((state) => state.cartData);
   const alert = useAlert();
+  const [comparedProducts, setComparedProducts] = useState([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+
   const handleBuy = (productID) => {
     dispatch(insertCart({ productID, amount: 1 }));
   };
@@ -42,7 +46,7 @@ const CatalogPage = () => {
   }, [cartState.status]);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/v1/category/catalog/${categoryID}`)
+    fetch(`${API_BASE_URL}/api/v1/category/catalog/${categoryID}`)
       .then((res) => {
         if (!res.ok) throw new Error("Không tìm thấy sản phẩm");
         return res.json();
@@ -51,6 +55,30 @@ const CatalogPage = () => {
       .catch((err) => console.error("Lỗi:", err))
       .finally(() => setLoading(false));
   }, [categoryID]);
+
+  const handleCompare = (product) => {
+    if (comparedProducts.some((p) => p.productID === product.productID)) {
+      alert.info("🔍 Sản phẩm này đã được thêm để so sánh!");
+      return;
+    }
+
+    if (comparedProducts.length === 2) {
+      alert.show("⚠️ Chỉ so sánh tối đa 2 sản phẩm mỗi lần!");
+      return;
+    }
+
+    const newList = [...comparedProducts, product];
+    setComparedProducts(newList);
+
+    if (newList.length === 2) {
+      setShowCompareModal(true);
+    }
+  };
+
+  const handleCloseCompare = () => {
+    setShowCompareModal(false);
+    setComparedProducts([]);
+  };
 
   if (loading) return <p className="text-center mt-4">ĐANG TẢI...</p>;
 
@@ -84,8 +112,6 @@ const CatalogPage = () => {
           SẢN PHẨM THEO DANH MỤC #{categoryID}
         </h2>
       </div>
-
-      {/* --- DANH SÁCH SẢN PHẨM --- */}
       <div style={{ width: "100%", clear: "both" }}>
         {products.length === 0 ? (
           <div className="alert alert-info text-center">
@@ -147,7 +173,9 @@ const CatalogPage = () => {
                           ? "Đang thêm..."
                           : "Mua ngay"}
                       </button>
-                      <button className="btn btn-outline-secondary btn-sm">
+                      <button className="btn btn-outline-secondary btn-sm"
+                      onClick={() => handleCompare(item)}
+                      >
                         So sánh
                       </button>
                     </td>
@@ -157,7 +185,92 @@ const CatalogPage = () => {
             </table>
           </div>
         )}
-      </div>
+        </div>
+      {showCompareModal && comparedProducts.length === 2 && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={handleCloseCompare}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: "10px",
+              padding: "24px",
+              width: "90%",
+              maxWidth: "900px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            }}
+          >
+            <button
+              onClick={handleCloseCompare}
+              style={{
+                position: "absolute",
+                top: "20px",
+                right: "30px",
+                fontSize: "28px",
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+              }}
+            >
+              &times;
+            </button>
+
+            <h3 className="text-center mb-4">SO SÁNH SẢN PHẨM</h3>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-around",
+                gap: "20px",
+              }}
+            >
+              {comparedProducts.map((p) => (
+                <div
+                  key={p.productID}
+                  style={{
+                    flex: 1,
+                    border: "1px solid #ddd",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <img
+                    src={`data:image/png;base64,${p.imageBase64}`}
+                    alt={p.productName}
+                    style={{
+                      width: "100%",
+                      maxWidth: "180px",
+                      height: "180px",
+                      objectFit: "cover",
+                      marginBottom: "10px",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <h5>{p.productName}</h5>
+                  <p style={{ color: "#1976d2", fontWeight: "600" }}>
+                    {p.price?.toLocaleString("vi-VN")} VND
+                  </p>
+                  <p>{p.description || "Không có mô tả"}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

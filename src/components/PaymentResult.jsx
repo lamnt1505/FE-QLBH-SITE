@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/config.js";
 
 export default function PaymentResult() {
   const [result, setResult] = useState(null);
@@ -8,7 +9,7 @@ export default function PaymentResult() {
   useEffect(() => {
     const fetchResult = async () => {
       const res = await fetch(
-        `http://localhost:8080/vnpay-return${window.location.search}`
+        `${API_BASE_URL}/vnpay-return${window.location.search}`
       );
       const data = await res.json();
       console.log("👉 Gọi API:", data);

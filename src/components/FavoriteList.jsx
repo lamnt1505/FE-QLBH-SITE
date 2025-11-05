@@ -4,7 +4,9 @@ import { useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { useAlert } from "react-alert";
+import { useNavigate } from "react-router-dom";
 import { Modal, Button, Table, Spinner } from "react-bootstrap";
+import API_BASE_URL from "../config/config.js";
 
 export default function FavoriteList() {
   const alert = useAlert();
@@ -14,11 +16,12 @@ export default function FavoriteList() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
+  const navigate = useNavigate();
+  
   const fetchFavorites = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/dossier-statistic/list--favorite?accountID=${accountID}`
+        `${API_BASE_URL}/dossier-statistic/list--favorite?accountID=${accountID}`
       );
       setFavorites(res.data);
     } catch (error) {
@@ -39,7 +42,7 @@ export default function FavoriteList() {
 
     try {
       const res = await axios.delete(
-        `http://localhost:8080/dossier-statistic/${accountID}/${selectedItem.id}`
+        `${API_BASE_URL}/dossier-statistic/${accountID}/${selectedItem.id}`
       );
 
       if (res.data.success) {
@@ -57,6 +60,32 @@ export default function FavoriteList() {
       setDeleting(false);
       setSelectedItem(null);
       setShowModal(false);
+    }
+  };
+
+  const handleCartClick = () => {
+    navigate("/cart");
+  };
+
+  const handleAddToCart = async (productId) => {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/dossier-statistic/insert-product?productID=${productId}&amount=1`,
+        { method: "POST", credentials: "include" }
+      );
+
+      if (res.ok) {
+        alert.success("🛒 Sản phẩm đã được thêm vào giỏ hàng!");
+        if (window.updateCartQuantity) window.updateCartQuantity();
+      } else if (res.status === 401) {
+        alert.info("🔑 Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      } else {
+        const result = await res.text();
+        alert.error(result || "Thêm vào giỏ thất bại!");
+      }
+    } catch (err) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", err);
+      alert.error("Không thể kết nối server!");
     }
   };
 
@@ -144,7 +173,35 @@ export default function FavoriteList() {
                     </td>
                     <td>
                       <button
+                        className="btn btn-success btn-sm"
+                        style={{
+                          marginTop: "6px",
+                          width: "100%",
+                          backgroundColor: "#364252ff",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "4px",
+                          cursor: "pointer",
+                          marginRight: "6px",
+                        }}
+                        onClick={() => handleAddToCart(item.id)}
+                      >
+                        🛒 Thêm vào giỏ
+                      </button>
+                      <button
                         className="btn btn-danger btn-sm"
+                        style={{
+                          marginTop: "6px",
+                          width: "100%",
+                          backgroundColor: "#19d2c3ff",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "4px",
+                          cursor: "pointer",
+                          marginRight: "6px",
+                        }}
                         onClick={() => handleConfirmDelete(item)}
                       >
                         🗑 Xóa

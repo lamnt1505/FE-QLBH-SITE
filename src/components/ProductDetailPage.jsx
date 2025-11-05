@@ -10,7 +10,8 @@ import {
   CardContent,
   Divider,
 } from "@mui/material";
-import { useAlert } from "react-alert"; 
+import { useAlert } from "react-alert";
+import API_BASE_URL from "../config/config.js";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -19,11 +20,12 @@ const ProductDetailPage = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const alert = useAlert();
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/v1/product/${id}/detail-full`);
+        const res = await fetch(
+          `${API_BASE_URL}/api/v1/product/${id}/detail-full`
+        );
         if (!res.ok) throw new Error("Không lấy được dữ liệu");
         const data = await res.json();
         setProduct(data);
@@ -36,7 +38,9 @@ const ProductDetailPage = () => {
 
     const fetchRelated = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/v1/product/${id}/related`);
+        const res = await fetch(
+          `${API_BASE_URL}/api/v1/product/${id}/related`
+        );
         if (res.ok) {
           const data = await res.json();
           setRelatedProducts(data);
@@ -49,11 +53,14 @@ const ProductDetailPage = () => {
     fetchProduct();
     fetchRelated();
   }, [id]);
+  const handleCartClick = () => {
+    navigate("/cart");
+  };
 
-    const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (productId) => {
     try {
       const res = await fetch(
-        `http://localhost:8080/dossier-statistic/insert-product?productID=${productId}&amount=1`,
+        `${API_BASE_URL}/dossier-statistic/insert-product?productID=${productId}&amount=1`,
         { method: "POST", credentials: "include" }
       );
 
@@ -71,7 +78,7 @@ const ProductDetailPage = () => {
       alert.error("Không thể kết nối server!");
     }
   };
-  
+
   if (loading) return <Typography>Đang tải...</Typography>;
   if (!product) return <Typography>Không tìm thấy sản phẩm</Typography>;
 
@@ -124,11 +131,8 @@ const ProductDetailPage = () => {
               }}
             />
           </Card>
-
-          {/* Hàng ngang: Thông số + Phiên bản */}
           <Box sx={{ mt: 3 }}>
             <Grid container spacing={2}>
-              {/* --- Thông số kỹ thuật --- */}
               <Grid item xs={12} md={6}>
                 {product.detail && (
                   <Box sx={{ p: 2, bgcolor: "#f9f9f9", borderRadius: 2 }}>
@@ -165,8 +169,6 @@ const ProductDetailPage = () => {
                   </Box>
                 )}
               </Grid>
-
-              {/* --- Các phiên bản --- */}
               <Grid item xs={12} md={6}>
                 {product.versions && product.versions.length > 0 && (
                   <Box sx={{ p: 2, bgcolor: "#f9f9f9", borderRadius: 2 }}>
@@ -272,6 +274,7 @@ const ProductDetailPage = () => {
               <Button
                 variant="outlined"
                 color="secondary"
+                onClick={handleCartClick}
                 sx={{
                   flex: 1,
                   py: 1.5,

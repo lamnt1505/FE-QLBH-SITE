@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../styles/UpdateProfilePage/UpdateProfilePage.css";
 import { useAlert } from "react-alert";
+import API_BASE_URL from "../config/config.js";
 
 const UpdateProfilePage = () => {
   const { accountID } = useParams();
@@ -16,7 +17,7 @@ const UpdateProfilePage = () => {
   const [imageFile, setImageFile] = useState(null);
   const alert = useAlert();
   useEffect(() => {
-    fetch(`http://localhost:8080/api/v1/account/${accountID}/get`)
+    fetch(`${API_BASE_URL}/api/v1/account/${accountID}/get`)
       .then((res) => res.json())
       .then((data) => setFormData(data));
   }, [accountID]);
@@ -36,7 +37,7 @@ const UpdateProfilePage = () => {
       data.append("image", imageFile);
     }
 
-    fetch(`http://localhost:8080/api/v1/account/update/${accountID}`, {
+    fetch(`${API_BASE_URL}/api/v1/account/update/${accountID}`, {
       method: "PUT",
       body: data,
     })

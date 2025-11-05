@@ -18,6 +18,7 @@ import {
   TableCell,
   TableContainer,
 } from "@mui/material";
+import API_BASE_URL from "../config/config.js";
 
 const ProductSearch = ({ open, onClose }) => {
   const [categories, setCategories] = useState([]);
@@ -33,19 +34,19 @@ const ProductSearch = ({ open, onClose }) => {
 
   useEffect(() => {
     if (open) {
-      fetch("http://localhost:8080/api/v1/category/Listgetall")
+      fetch(`${API_BASE_URL}/api/v1/category/Listgetall`)
         .then((res) => res.json())
         .then(setCategories);
 
-      fetch("http://localhost:8080/api/trademark/gettrademark")
+      fetch(`${API_BASE_URL}/api/trademark/gettrademark`)
         .then((res) => res.json())
         .then(setTrademarks);
 
-      fetch("http://localhost:8080/api/productversion/Listgetall")
+      fetch(`${API_BASE_URL}/api/productversion/Listgetall`)
         .then((res) => res.json())
         .then(setVersions);
 
-      fetch("http://localhost:8080/api/v1/productdetail/Listgetall")
+      fetch(`${API_BASE_URL}/api/v1/productdetail/Listgetall`)
         .then((res) => res.json())
         .then(setDetails);
     }
@@ -68,7 +69,7 @@ const ProductSearch = ({ open, onClose }) => {
     };
 
     try {
-      const res = await fetch("http://localhost:8080/dossier-statistic/search", {
+      const res = await fetch(`${API_BASE_URL}/dossier-statistic/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(criteria),

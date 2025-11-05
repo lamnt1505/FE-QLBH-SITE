@@ -25,6 +25,7 @@ import {
 import Rating from "@mui/material/Rating";
 import { useAlert } from "react-alert";
 import { Toast } from "bootstrap";
+import API_BASE_URL from "../config/config.js";
 
 const ProductGrid = ({ searchKey }) => {
   const navigate = useNavigate();
@@ -61,6 +62,12 @@ const ProductGrid = ({ searchKey }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 5;
+
+  const [comparedProducts, setComparedProducts] = useState([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+
+  const [openImageDialog, setOpenImageDialog] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     if (selectedCity) {
@@ -103,7 +110,7 @@ const ProductGrid = ({ searchKey }) => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:8080/dossier-statistic/products?page=${pageNum}&size=${pageSize}&sort=productID,asc`
+        `${API_BASE_URL}/dossier-statistic/products?page=${pageNum}&size=${pageSize}&sort=productID,asc`
       );
       if (!res.ok) throw new Error("Lỗi khi gọi API phân trang!");
       const data = await res.json();
@@ -132,7 +139,7 @@ const ProductGrid = ({ searchKey }) => {
       try {
         console.log("🔍 Gọi API tìm kiếm với key:", searchKey);
         const response = await fetch(
-          "http://localhost:8080/api/v1/product/search",
+          `${API_BASE_URL}/api/v1/product/search`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -162,7 +169,7 @@ const ProductGrid = ({ searchKey }) => {
 
   const fetchPriceDesc = async () => {
     const res = await fetch(
-      "http://localhost:8080/dossier-statistic/list--Product--PriceDesc"
+      `${API_BASE_URL}/dossier-statistic/list--Product--PriceDesc`
     );
     const data = await res.json();
     setProducts(data.map(mapProduct));
@@ -170,7 +177,7 @@ const ProductGrid = ({ searchKey }) => {
 
   const fetchPriceAsc = async () => {
     const res = await fetch(
-      "http://localhost:8080/dossier-statistic/list--Product--PriceAsc"
+      `${API_BASE_URL}/dossier-statistic/list--Product--PriceAsc`
     );
     const data = await res.json();
     setProducts(data.map(mapProduct));
@@ -178,7 +185,7 @@ const ProductGrid = ({ searchKey }) => {
 
   const fetchNewBest = async () => {
     const res = await fetch(
-      "http://localhost:8080/dossier-statistic/list--Product--NewBest"
+      `${API_BASE_URL}/dossier-statistic/list--Product--NewBest`
     );
     const data = await res.json();
     setProducts(data.map(mapProduct));
@@ -187,7 +194,7 @@ const ProductGrid = ({ searchKey }) => {
   const fetchCategories = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8080/api/v1/category/Listgetall"
+        `${API_BASE_URL}/api/v1/category/Listgetall`
       );
       if (!res.ok) throw new Error("Không thể tải danh mục");
       const data = await res.json();
@@ -206,7 +213,7 @@ const ProductGrid = ({ searchKey }) => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:8080/dossier-statistic/list--ProductById--Category--Filter/${categoryID}`,
+        `${API_BASE_URL}/dossier-statistic/list--ProductById--Category--Filter/${categoryID}`,
         { method: "POST" }
       );
       const data = await res.json();
@@ -220,15 +227,21 @@ const ProductGrid = ({ searchKey }) => {
   };
 
   const toggleFavorite = async (productId) => {
+    if (!accountID) {
+      alert.info("🔑 Vui lòng đăng nhập để thêm sản phẩm yêu thích!");
+      setTimeout(() => navigate("/login"), 1200);
+      return;
+    }
     try {
       const res = await fetch(
-        `http://localhost:8080/dossier-statistic/add--favorite?accountID=${accountID}&productID=${productId}`,
+        `${API_BASE_URL}/dossier-statistic/add--favorite?accountID=${accountID}&productID=${productId}`,
         { method: "POST" }
       );
 
       const result = await res.text();
+
       if (res.ok) {
-        alert.success("Đã thêm vào danh mục yêu thích!");
+        alert.success("❤️ Đã thêm vào danh mục yêu thích!");
         setFavorites((prev) => [...prev, productId]);
       } else {
         alert.error(result || "Thêm yêu thích thất bại!");
@@ -249,7 +262,7 @@ const ProductGrid = ({ searchKey }) => {
 
     try {
       const res = await fetch(
-        "http://localhost:8080/dossier-statistic/add--vote",
+        `${API_BASE_URL}/dossier-statistic/add--vote`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -275,7 +288,7 @@ const ProductGrid = ({ searchKey }) => {
   const handleAddToCart = async (productId) => {
     try {
       const res = await fetch(
-        `http://localhost:8080/dossier-statistic/insert-product?productID=${productId}&amount=1`,
+        `${API_BASE_URL}/dossier-statistic/insert-product?productID=${productId}&amount=1`,
         { method: "POST", credentials: "include" }
       );
 
@@ -297,7 +310,7 @@ const ProductGrid = ({ searchKey }) => {
   const fetchStockByBranch = async (branchID, productId) => {
     try {
       const stockRes = await fetch(
-        `http://localhost:8080/api/v1/inventory/check/${branchID}/${productId}`
+        `${API_BASE_URL}/api/v1/inventory/check/${branchID}/${productId}`
       );
 
       if (stockRes.ok) {
@@ -315,14 +328,14 @@ const ProductGrid = ({ searchKey }) => {
   const handleOpenDetailInventory = async (productId) => {
     try {
       const res = await fetch(
-        `http://localhost:8080/api/v1/product/${productId}/get`
+        `${API_BASE_URL}/api/v1/product/${productId}/get`
       );
       if (!res.ok) throw new Error("Không tìm thấy sản phẩm");
       const data = await res.json();
       setProductDetail(data);
 
       const stockRes = await fetch(
-        `http://localhost:8080/api/v1/inventory/by-product/${productId}`
+        `${API_BASE_URL}/api/v1/inventory/by-product/${productId}`
       );
       if (!stockRes.ok) throw new Error("Không lấy được danh sách tồn kho");
       const stockData = await stockRes.json();
@@ -347,6 +360,30 @@ const ProductGrid = ({ searchKey }) => {
     }
   };
 
+  const handleCompare = (product) => {
+    if (comparedProducts.some((p) => p.id === product.id)) {
+      alert.info("🔍 Sản phẩm này đã được thêm để so sánh!");
+      return;
+    }
+
+    if (comparedProducts.length === 2) {
+      alert.show("⚠️ Chỉ so sánh tối đa 2 sản phẩm mỗi lần!");
+      return;
+    }
+
+    const newList = [...comparedProducts, product];
+    setComparedProducts(newList);
+
+    if (newList.length === 2) {
+      setShowCompareModal(true);
+    }
+  };
+
+  const handleCloseCompare = () => {
+    setShowCompareModal(false);
+    setComparedProducts([]);
+  };
+
   return (
     <div>
       <div className="filter-bar">
@@ -360,7 +397,7 @@ const ProductGrid = ({ searchKey }) => {
           }}
         >
           {[
-            { label: "LỌC THEO DANH MỤC: " },
+            { label: "LỌC THEO DANH MỤC:" },
             { label: "GIÁ ↑ THẤP ĐẾN CAO", onClick: fetchPriceAsc },
             { label: "GIÁ ↓ CAO ĐẾN THẤP", onClick: fetchPriceDesc },
             { label: "SẢN PHẨM MỚI / TỐT NHẤT", onClick: fetchNewBest },
@@ -408,11 +445,12 @@ const ProductGrid = ({ searchKey }) => {
           </Button>
         </Box>
       </div>
+
       <div className="product-grid">
         {loading ? (
           <p>ĐANG TẢI DỮ LIỆU...</p>
         ) : message ? (
-          <p style={{ textAlign: "center", color: "gray" }}>{message}</p>
+          <p style={{ textAlign: "center", color: "red" }}>{message}</p>
         ) : (
           products.map((product) => (
             <div
@@ -454,6 +492,11 @@ const ProductGrid = ({ searchKey }) => {
                   src={product.imageUrl}
                   alt={product.title}
                   className="product-image"
+                  style={{ cursor: "zoom-in" }}
+                  onClick={() => {
+                    setSelectedImage(product.imageUrl);
+                    setOpenImageDialog(true);
+                  }}
                 />
               </div>
 
@@ -474,19 +517,58 @@ const ProductGrid = ({ searchKey }) => {
                     THÊM VÀO GIỎ HÀNG
                   </button>
                   <button
+                    className="btn-compare"
+                    onClick={() => handleCompare(product)}
+                    style={{
+                      marginTop: "6px",
+                      width: "100%",
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "4px",
+                      marginRight: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    SO SÁNH SẢN PHẨM
+                  </button>
+                  <button
+                    className="btn-detail"
+                    style={{
+                      marginTop: "6px",
+                      width: "100%",
+                      backgroundColor: "#19d2c3ff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "4px",
+                      cursor: "pointer",
+                      marginRight: "6px",
+                    }}
+                    onClick={() => navigate(`/product/${product.id}`)}
+                  >
+                    XEM CHI TIẾT
+                  </button>
+                  <button
                     className="btn-vote"
+                    style={{
+                      marginTop: "6px",
+                      width: "100%",
+                      backgroundColor: "#364252ff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "4px",
+                      cursor: "pointer",
+                      marginRight: "6px",
+                    }}
                     onClick={() => {
                       setSelectedProduct(product.id);
                       setOpenVote(true);
                     }}
                   >
-                    ⭐ ĐÁNH GIÁ
-                  </button>
-                  <button
-                    className="btn-detail"
-                    onClick={() => navigate(`/product/${product.id}`)}
-                  >
-                    🔍 XEM CHI TIẾT
+                    ĐÁNH GIÁ
                   </button>
                 </div>
               </div>
@@ -684,6 +766,7 @@ const ProductGrid = ({ searchKey }) => {
           </DialogActions>
         </Dialog>
       </div>
+
       <div className="pagination center">
         {totalPages > 1 && (
           <div
@@ -737,6 +820,127 @@ const ProductGrid = ({ searchKey }) => {
           </div>
         )}
       </div>
+
+      {/* 🆕 Modal so sánh sản phẩm */}
+      {showCompareModal && comparedProducts.length === 2 && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 2000,
+          }}
+          onClick={handleCloseCompare}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              padding: "24px",
+              width: "90%",
+              maxWidth: "950px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={handleCloseCompare}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "20px",
+                fontSize: "26px",
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+              }}
+            >
+              &times;
+            </button>
+
+            <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+              So sánh sản phẩm
+            </h3>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-around",
+                gap: "20px",
+              }}
+            >
+              {comparedProducts.map((p) => (
+                <div
+                  key={p.id}
+                  style={{
+                    flex: 1,
+                    border: "1px solid #ddd",
+                    borderRadius: "10px",
+                    padding: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <img
+                    src={p.imageUrl}
+                    alt={p.title}
+                    style={{
+                      width: "100%",
+                      maxWidth: "200px",
+                      height: "200px",
+                      objectFit: "cover",
+                      marginBottom: "10px",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <h5>{p.title}</h5>
+                  <p style={{ color: "#1976d2", fontWeight: "600" }}>
+                    {p.price?.toLocaleString("vi-VN")} ₫
+                  </p>
+                  <p>
+                    <b>Danh mục:</b> {p.category}
+                  </p>
+                  <p>
+                    <b>Thương hiệu:</b> {p.tradeName}
+                  </p>
+                  <p>{p.description || "Không có mô tả"}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      <Dialog
+        open={openImageDialog}
+        onClose={() => setOpenImageDialog(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>ẢNH SẢN PHẨM</DialogTitle>
+        <DialogContent sx={{ textAlign: "center" }}>
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Phóng to"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "80vh",
+                borderRadius: "8px",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenImageDialog(false)}>ĐÓNG</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

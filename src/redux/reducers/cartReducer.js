@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
+import API_BASE_URL from "../../config/config.js";
 
 export const insertCart = createAsyncThunk(
   "cart/insertCart",
   async ({ productID, amount = 1 }, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        "http://localhost:8080/dossier-statistic/insert-product",
+        `${API_BASE_URL}/dossier-statistic/insert-product`,
         null,
         {
           params: { productID, amount },

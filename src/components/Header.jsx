@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { BsCart3 } from "react-icons/bs";
 import { useAlert } from "react-alert";
+import API_BASE_URL from "../config/config.js";
 
 const Header = ({ onSearch = () => {} }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,8 +27,12 @@ const Header = ({ onSearch = () => {} }) => {
   const [key, setKey] = useState("");
 
   const handleSearch = () => {
-    if (key.trim() === "") return;
-    console.log("Header gửi key:", key);
+    if (key.trim() === "") {
+      alert.info("🔎 Vui lòng nhập nội dung để tìm kiếm sản phẩm!");
+      return;
+    }
+
+    console.log("🔍 Header gửi key:", key);
     onSearch(key);
   };
 
@@ -61,7 +66,7 @@ const Header = ({ onSearch = () => {} }) => {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/v1/category/Listgetall")
+    fetch(`${API_BASE_URL}/api/v1/category/Listgetall`)
       .then((res) => res.json())
       .then(setCategories)
       .catch((err) => console.error("Lỗi khi lấy danh mục:", err));
@@ -70,7 +75,7 @@ const Header = ({ onSearch = () => {} }) => {
   const fetchCartQuantity = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8080/dossier-statistic/cart/quantity",
+        `${API_BASE_URL}/dossier-statistic/cart/quantity`,
         {
           credentials: "include",
         }
@@ -84,7 +89,7 @@ const Header = ({ onSearch = () => {} }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:8080/api/v1/account/logout", {
+      await fetch(`${API_BASE_URL}/api/v1/account/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -131,7 +136,7 @@ const Header = ({ onSearch = () => {} }) => {
       formData.append("confirmPassword", confirmPassword);
 
       const res = await fetch(
-        `http://localhost:8080/api/v1/account/changer-password/${accountID}`,
+        `${API_BASE_URL}/api/v1/account/changer-password/${accountID}`,
         {
           method: "PUT",
           body: formData,
