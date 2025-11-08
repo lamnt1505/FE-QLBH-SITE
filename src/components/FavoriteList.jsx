@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
-import { Modal, Button, Table, Spinner } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import API_BASE_URL from "../config/config.js";
 
 export default function FavoriteList() {
@@ -17,7 +17,7 @@ export default function FavoriteList() {
   const [deleting, setDeleting] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-  
+
   const fetchFavorites = async () => {
     try {
       const res = await axios.get(
@@ -114,7 +114,7 @@ export default function FavoriteList() {
             paddingBottom: "8px",
           }}
         >
-          ❤️ Sản Phẩm Tôi Yêu Thích
+          SẢN PHẨM YÊU THÍCH
         </h2>
       </div>
 
@@ -122,7 +122,8 @@ export default function FavoriteList() {
       <div style={{ width: "100%" }}>
         {favorites.length === 0 ? (
           <div className="alert alert-info text-center mt-3">
-            Bạn chưa có sản phẩm yêu thích nào.
+            BẠN CHƯA CÓ SẢN PHẨM YÊU THÍCH. VUI LÒNG THÊM SẢN PHẨM VÀO DANH
+            SÁCH YÊU THÍCH.
           </div>
         ) : (
           <div className="table-responsive">
@@ -140,9 +141,7 @@ export default function FavoriteList() {
                   <tr key={item.id}>
                     <td>
                       <img
-                        src={
-                          item.image
-                        }
+                        src={item.image}
                         alt={item.name}
                         style={{
                           width: "80px",

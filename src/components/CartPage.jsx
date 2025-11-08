@@ -44,7 +44,6 @@ const CartPage = () => {
         note: data.note || prev.note,
         email: getValueOrFallback(data.email, ""),
       }));
-
       alert.success("✅ Đã lấy thông tin từ tài khoản!");
     } catch (error) {
       alert.error("❌ Không thể lấy thông tin tài khoản");
@@ -90,7 +89,6 @@ const CartPage = () => {
       dispatch(updateQuantity({ productID: item.id, amount: item.amount }))
         .unwrap()
         .then((res) => {
-          console.log("res từ thunk:", res);
           if (res.result === 1) {
             alert.success(`✅ Đã cập nhật ${item.name}`);
           } else if (res.result === 2) {
@@ -127,7 +125,6 @@ const CartPage = () => {
         alert.error("❌ Xóa sản phẩm thất bại!");
       }
     } catch (err) {
-      console.error("Lỗi khi xóa sản phẩm:", err);
       alert.error("⚠ Lỗi hệ thống!");
     }
   };
@@ -141,8 +138,7 @@ const CartPage = () => {
     );
   };
 
-  const getTotal = () =>
-    cartItems.reduce((sum, item) => sum + item.price * item.amount, 0);
+  const getTotal = () => cartItems.reduce((sum, item) => sum + item.price * item.amount, 0);
 
   const applyDiscount = async () => {
     if (!discountCode.trim()) {
@@ -179,12 +175,10 @@ const CartPage = () => {
             data.message
           }\nTổng sau giảm: ${data.discountedTotal.toLocaleString()}₫`
         );
-        console.log("Chi tiết sản phẩm giảm giá:", data.discountedProducts);
       } else {
         alert.warning(data.message || "⚠️ Mã giảm giá không hợp lệ!");
       }
     } catch (err) {
-      console.error("❌ Lỗi khi áp dụng mã giảm giá:", err);
       alert.error("⚠️ Đã xảy ra lỗi hệ thống, vui lòng thử lại!");
     }
   };
@@ -208,9 +202,6 @@ const CartPage = () => {
       alert.error("⚠ Email không hợp lệ!");
       return;
     }
-
-    console.log("Đặt hàng với data:", formData);
-
     try {
       const res = await fetch(
         `${API_BASE_URL}/dossier-statistic/orders`,
@@ -238,32 +229,7 @@ const CartPage = () => {
         alert.error("Đặt hàng thất bại!");
       }
     } catch (err) {
-      console.error("Lỗi đặt hàng:", err);
       alert.error("Lỗi hệ thống khi đặt hàng.");
-    }
-  };
-
-  const handleVnpayPayment = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/create-payment`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      const text = await res.text();
-      console.log("Payment URL:", text);
-
-      if (text.startsWith("http")) {
-        alert.success("✅ Chuyển hướng tới VNPAY...");
-        setTimeout(() => {
-          window.location.href = text;
-        }, 1500);
-      } else {
-        alert.error("❌ " + text);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert.error("⚠ Lỗi kết nối tới server!");
     }
   };
 

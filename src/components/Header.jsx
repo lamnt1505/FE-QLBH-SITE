@@ -31,8 +31,6 @@ const Header = ({ onSearch = () => {} }) => {
       alert.info("🔎 Vui lòng nhập nội dung để tìm kiếm sản phẩm!");
       return;
     }
-
-    console.log("🔍 Header gửi key:", key);
     onSearch(key);
   };
 
@@ -105,7 +103,7 @@ const Header = ({ onSearch = () => {} }) => {
 
       navigate("/index");
     } catch (err) {
-      console.error("Lỗi khi logout:", err);
+      alert.error("Có lỗi khi đăng xuất");
     }
   };
 

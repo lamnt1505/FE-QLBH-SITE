@@ -14,7 +14,7 @@ const DiscountTicker = () => {
           setDiscount(res.data);
         }
       } catch (err) {
-        console.error("Không thể lấy mã giảm giá:", err);
+        alert.error("❌ Không thể lấy mã giảm giá");
       }
     };
 
@@ -26,10 +26,8 @@ const DiscountTicker = () => {
     let date;
 
     if (dateStr.includes("-")) {
-      // định dạng yyyy-MM-dd
       date = new Date(dateStr);
     } else if (dateStr.length === 8) {
-      // định dạng yyyyMMdd
       const year = dateStr.substring(0, 4);
       const month = dateStr.substring(4, 6);
       const day = dateStr.substring(6, 8);
