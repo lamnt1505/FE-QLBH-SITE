@@ -13,65 +13,74 @@ const UpdateProfilePage = () => {
     email: "",
     local: "",
     dateOfBirth: "",
+    image: "", 
   });
+
   const [imageFile, setImageFile] = useState(null);
   const alert = useAlert();
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/v1/account/${accountID}/get`)
       .then((res) => res.json())
-      .then((data) => setFormData(data));
-  }, [accountID]);
+      .then((data) => {
+        setFormData({
+          accountName: data.accountName || "",
+          username: data.username || "",
+          phoneNumber: data.phoneNumber || "",
+          email: data.email || "",
+          local: data.local || "",
+          dateOfBirth: data.dateOfBirth || "",
+          image: data.image || "", // nếu có ảnh cũ thì hiển thị
+        });
+      })
+      .catch((err) => alert.error("Không thể tải thông tin tài khoản!"));
+  }, [accountID, alert]);
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = new FormData();
-    data.append("accountName", formData.accountName);
-    data.append("username", formData.username);
-    data.append("phoneNumber", formData.phoneNumber);
-    data.append("email", formData.email);
-    data.append("local", formData.local);
-    data.append("dateOfBirth", formData.dateOfBirth);
-
-    if (imageFile) {
-      data.append("image", imageFile);
-    }
-
-    fetch(`${API_BASE_URL}/api/v1/account/update/${accountID}`, {
-      method: "PUT",
-      body: data,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Cập nhật thất bại");
-        return res.text();
-      })
-      .then((msg) => {
-        alert.success(msg);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      })
-      .catch((err) => {
-        alert.error(err.message);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/account/update/${accountID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || "Cập nhật thất bại");
+
+      alert.success(result.message);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      alert.error(err.message);
+    }
   };
 
   return (
     <div className="profile-container">
       <div className="profile-card">
         <h2 className="form-title">CẬP NHẬT HỒ SƠ</h2>
+
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="form-group">
             <label>TÊN ĐĂNG NHẬP</label>
-            <input
-              type="text"
-              value={formData.accountName}
-              onChange={(e) =>
-                setFormData({ ...formData, accountName: e.target.value })
-              }
-              disabled
-            />
+            <input type="text" value={formData.accountName} disabled />
           </div>
+
           <div className="form-group">
             <label>HỌ VÀ TÊN</label>
             <input
@@ -129,16 +138,15 @@ const UpdateProfilePage = () => {
 
           <div className="form-group">
             <label>ẢNH ĐẠI DIỆN</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) {
-                  setImageFile(file);
-                }
-              }}
-            />
+            <input type="file" accept="image/*" onChange={handleImageChange} />
+            {formData.image && (
+              <img
+                src={formData.image}
+                alt="preview"
+                className="preview-image"
+                style={{ width: "120px", marginTop: "10px", borderRadius: "10px" }}
+              />
+            )}
           </div>
 
           <button type="submit" className="btn-submit">

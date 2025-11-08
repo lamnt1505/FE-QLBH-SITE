@@ -70,9 +70,7 @@ const CartPage = () => {
           name: item.name,
           price: item.price,
           amount: item.amount,
-          imageUrl: item.imageBase64
-            ? `data:image/jpeg;base64,${item.imageBase64}`
-            : "https://via.placeholder.com/80",
+          imageUrl: item.image
         }));
         setCartItems(mappedCart);
       } catch (err) {

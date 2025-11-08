@@ -111,8 +111,6 @@ const ProductDetailPage = () => {
               component="img"
               image={
                 product.image
-                  ? `data:image/jpeg;base64,${product.image}`
-                  : "/placeholder.png"
               }
               alt={product.name}
               title={product.description}
@@ -195,9 +193,7 @@ const ProductDetailPage = () => {
                             <CardMedia
                               component="img"
                               image={
-                                v.image1
-                                  ? `data:image/jpeg;base64,${v.image1}`
-                                  : "/placeholder.png"
+                                v.image
                               }
                               alt={v.memory}
                               sx={{
@@ -312,9 +308,7 @@ const ProductDetailPage = () => {
                   <CardMedia
                     component="img"
                     image={
-                      item.imageBase64
-                        ? `data:image/jpeg;base64,${item.imageBase64}`
-                        : "/placeholder.png"
+                      item.image
                     }
                     alt={item.name}
                     sx={{

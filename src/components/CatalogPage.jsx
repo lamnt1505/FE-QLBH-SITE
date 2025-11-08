@@ -133,7 +133,7 @@ const CatalogPage = () => {
                   <tr key={item.productID}>
                     <td>
                       <img
-                        src={`data:image/png;base64,${item.imageBase64}`}
+                        src={item.imageBase64}
                         alt={item.productName}
                         style={{
                           width: "80px",
@@ -249,7 +249,7 @@ const CatalogPage = () => {
                   }}
                 >
                   <img
-                    src={`data:image/png;base64,${p.imageBase64}`}
+                    src={p.imageBase64}
                     alt={p.productName}
                     style={{
                       width: "100%",

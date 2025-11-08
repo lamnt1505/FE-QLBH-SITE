@@ -101,9 +101,7 @@ const ProductGrid = ({ searchKey }) => {
     category: p.categoryname,
     tradeName: p.tradeName,
     price: p.price,
-    imageUrl: p.imageBase64
-      ? `data:image/jpeg;base64,${p.imageBase64}`
-      : "https://via.placeholder.com/150",
+    imageUrl: p.image
   });
 
   const fetchProductsDefault = async (pageNum = 0) => {
@@ -138,14 +136,11 @@ const ProductGrid = ({ searchKey }) => {
       setMessage("");
       try {
         console.log("🔍 Gọi API tìm kiếm với key:", searchKey);
-        const response = await fetch(
-          `${API_BASE_URL}/api/v1/product/search`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ key: searchKey }),
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/api/v1/product/search`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key: searchKey }),
+        });
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -193,9 +188,7 @@ const ProductGrid = ({ searchKey }) => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/v1/category/Listgetall`
-      );
+      const res = await fetch(`${API_BASE_URL}/api/v1/category/Listgetall`);
       if (!res.ok) throw new Error("Không thể tải danh mục");
       const data = await res.json();
       setCategories(data);
@@ -261,14 +254,11 @@ const ProductGrid = ({ searchKey }) => {
     };
 
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/dossier-statistic/add--vote`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(voteDTO),
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/dossier-statistic/add--vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(voteDTO),
+      });
 
       const result = await res.json();
       if (res.ok) {
@@ -489,7 +479,13 @@ const ProductGrid = ({ searchKey }) => {
               </div>
               <div className="product-image-container">
                 <img
-                  src={product.imageUrl}
+                  src={
+                    product.imageUrl
+                      ? product.imageUrl 
+                      : product.imageBase64
+                      ? `data:image/jpeg;base64,${product.imageBase64}` 
+                      : "https://via.placeholder.com/150"
+                  }
                   alt={product.title}
                   className="product-image"
                   style={{ cursor: "zoom-in" }}
@@ -623,7 +619,13 @@ const ProductGrid = ({ searchKey }) => {
             {detailProduct ? (
               <>
                 <img
-                  src={`data:image/jpeg;base64,${detailProduct.imageBase64}`}
+                  src={
+                    detailProduct.image
+                      ? detailProduct.image
+                      : detailProduct.imageBase64
+                      ? `data:image/jpeg;base64,${detailProduct.imageBase64}`
+                      : "https://via.placeholder.com/400"
+                  }
                   alt={detailProduct.name}
                   style={{ width: "100%", marginBottom: "16px" }}
                 />

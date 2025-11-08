@@ -100,7 +100,6 @@ export default function FavoriteList() {
       className="container mt-4"
       style={{ display: "flex", flexDirection: "column" }}
     >
-      {/* Tiêu đề */}
       <div className="text-center mb-4" style={{ width: "100%" }}>
         <h2
           style={{
@@ -141,7 +140,9 @@ export default function FavoriteList() {
                   <tr key={item.id}>
                     <td>
                       <img
-                        src={`data:image/jpeg;base64,${item.imageBase64}`}
+                        src={
+                          item.image
+                        }
                         alt={item.name}
                         style={{
                           width: "80px",

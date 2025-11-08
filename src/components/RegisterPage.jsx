@@ -37,39 +37,50 @@ const RegisterPage = () => {
     setMessage("");
 
     if (!validatePassword(formData.accountPass)) {
-      setMessage(
-        "❌ Mật khẩu phải có ít nhất 1 chữ hoa hoặc 1 ký tự đặc biệt!"
-      );
+      setMessage("❌ Mật khẩu phải có ít nhất 1 chữ hoa hoặc 1 ký tự đặc biệt!");
       return;
     }
 
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
-    });
-
-    if (image) data.append("image", image);
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/account/add`, {
-        method: "POST",
-        body: data,
-      });
-
-      const result = await res.json();
-      if (!res.ok) {
-        setMessage(`❌ ${result.message}`);
-        return;
-      }
-
-      setMessage(`✅ ${result.message}`);
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 2000);
-    } catch (err) {
-      console.error("Lỗi đăng ký:", err);
-      setMessage("❌ Có lỗi kết nối server, vui lòng thử lại!");
+    if (!image) {
+      setMessage("❌ Vui lòng chọn ảnh!");
+      return;
     }
+
+    // Chuyển ảnh sang base64
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Image = reader.result;
+
+      const data = {
+        ...formData,
+        image: base64Image,
+      };
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/account/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data), 
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          setMessage(`❌ ${result.message}`);
+          return;
+        }
+
+        setMessage(`✅ ${result.message}`);
+        setTimeout(() => navigate("/login"), 2000);
+      } catch (err) {
+        console.error("Lỗi đăng ký:", err);
+        setMessage("❌ Có lỗi kết nối server, vui lòng thử lại!");
+      }
+    };
+
+    reader.readAsDataURL(image);
   };
 
   return (

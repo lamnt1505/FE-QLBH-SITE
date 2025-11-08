@@ -227,7 +227,7 @@ const ProductSearch = ({ open, onClose }) => {
                     </TableCell>
                     <TableCell>
                       <img
-                        src={`data:image/png;base64,${p.imageBase64}`}
+                        src={p.image}
                         alt="Product"
                         style={{ width: 50, height: 50, borderRadius: 6 }}
                       />
