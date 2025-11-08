@@ -34,6 +34,16 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+    "config": {
+    "legacy-peer-deps": true
+  },
+  "overrides": {
+    "react-alert": {
+      "peerDependencies": {
+        "react": "^18.3.1"
+      }
+    }
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
