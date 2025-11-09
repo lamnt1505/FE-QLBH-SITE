@@ -18,16 +18,14 @@ import DiscountTicker from "./components/DiscountTicker";
 import SearchPage from "./components/SearchPage";
 import FavoriteList from "./components/FavoriteList"; 
 import ProductDetailPage from "./components/ProductDetailPage";
-
-import { transitions, positions, Provider as AlertProvider } from "react-alert";
-import AlertTemplate from "react-alert-template-basic";
+import { ToastContainer } from "react-toastify";
 import UpdateProfileDialogPage from "./components/UpdateProfileDialog";
 
 const options = {
-  position: positions.TOP_RIGHT,
+  position: "top-right",
   timeout: 3000,
   offset: "10px",
-  transition: transitions.SCALE,
+  transition: "scale",
 };
 
 function App() {
@@ -38,7 +36,7 @@ function App() {
     setSearchKey(key);
   };
   return (
-    <AlertProvider template={AlertTemplate} {...options}>
+    <>     
     <Router>
       <div className="app">
         <Header onSearch={handleSearch}/>
@@ -71,7 +69,8 @@ function App() {
         <Footer />
       </div>
     </Router>
-    </AlertProvider>
+    <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 }
 

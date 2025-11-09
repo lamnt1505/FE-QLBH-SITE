@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Box, Typography } from "@mui/material";
 import API_BASE_URL from "../config/config.js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const DiscountTicker = () => {
   const [discount, setDiscount] = useState(null);
@@ -14,7 +16,7 @@ const DiscountTicker = () => {
           setDiscount(res.data);
         }
       } catch (err) {
-        alert.error("❌ Không thể lấy mã giảm giá");
+        toast.error("❌ Không thể lấy mã giảm giá");
       }
     };
 

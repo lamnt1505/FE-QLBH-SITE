@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 import "../styles/CatalogPage/CatalogPage.css";
 import { insertCart } from "../redux/reducers/cartReducer";
 import { useDispatch, useSelector } from "react-redux";
-import { useAlert } from "react-alert";
 import API_BASE_URL from "../config/config.js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CatalogPage = () => {
   const { categoryID } = useParams();
@@ -12,7 +13,6 @@ const CatalogPage = () => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const cartState = useSelector((state) => state.cartData);
-  const alert = useAlert();
   const [comparedProducts, setComparedProducts] = useState([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
 
@@ -22,7 +22,7 @@ const CatalogPage = () => {
 
   useEffect(() => {
     if (cartState.status === "succeeded") {
-      alert.success(
+      toast.success(
         <div className="flex items-center space-x-2">
           <span>SẢN PHẨM ĐÃ ĐƯỢC THÊM VÀO GIỎ HÀNG!</span>
         </div>,
@@ -35,7 +35,7 @@ const CatalogPage = () => {
         }
       );
     } else if (cartState.status === "failed") {
-      alert.error("❌ Có lỗi khi thêm sản phẩm vào giỏ hàng!", {
+      toast.error("❌ Có lỗi khi thêm sản phẩm vào giỏ hàng!", {
         style: {
           background: "#111",
           color: "#fff",
@@ -58,12 +58,12 @@ const CatalogPage = () => {
 
   const handleCompare = (product) => {
     if (comparedProducts.some((p) => p.productID === product.productID)) {
-      alert.info("🔍 Sản phẩm này đã được thêm để so sánh!");
+      toast.info("🔍 Sản phẩm này đã được thêm để so sánh!");
       return;
     }
 
     if (comparedProducts.length === 2) {
-      alert.show("⚠️ Chỉ so sánh tối đa 2 sản phẩm mỗi lần!");
+      toast.show("⚠️ Chỉ so sánh tối đa 2 sản phẩm mỗi lần!");
       return;
     }
 
@@ -114,7 +114,7 @@ const CatalogPage = () => {
       </div>
       <div style={{ width: "100%", clear: "both" }}>
         {products.length === 0 ? (
-          <div className="alert alert-info text-center">
+          <div className="toast toast-info text-center">
             Không có sản phẩm nào trong danh mục này.
           </div>
         ) : (

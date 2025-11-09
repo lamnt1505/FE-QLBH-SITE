@@ -10,7 +10,8 @@ import {
   CardContent,
   Divider,
 } from "@mui/material";
-import { useAlert } from "react-alert";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import API_BASE_URL from "../config/config.js";
 
 const ProductDetailPage = () => {
@@ -18,7 +19,6 @@ const ProductDetailPage = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
-  const alert = useAlert();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchProduct = async () => {
@@ -65,17 +65,17 @@ const ProductDetailPage = () => {
       );
 
       if (res.ok) {
-        alert.success("🛒 Sản phẩm đã được thêm vào giỏ hàng!");
+        toast.success("🛒 Sản phẩm đã được thêm vào giỏ hàng!");
         if (window.updateCartQuantity) {
           window.updateCartQuantity();
         }
       } else {
         const result = await res.text();
-        alert.error(result || "Thêm vào giỏ thất bại!");
+        toast.error(result || "Thêm vào giỏ thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi thêm vào giỏ hàng:", err);
-      alert.error("Không thể kết nối server!");
+      toast.error("Không thể kết nối server!");
     }
   };
 

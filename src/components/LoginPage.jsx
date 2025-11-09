@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAlert } from "react-alert";
+
 import API_BASE_URL from "../config/config.js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginPage = () => {
   const [accountName, setAccountName] = useState("");
@@ -12,7 +14,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-  const alert = useAlert();
 
   const refreshCaptcha = () => {
     setCaptchaUrl(
@@ -65,7 +66,7 @@ const LoginPage = () => {
 
         console.log("Lưu accountID:", data.accountID);
 
-        alert.success("Đăng nhập thành công!");
+        toast.success("Đăng nhập thành công!");
 
         setTimeout(() => {
           if (data.admin || data.employee) {
@@ -90,9 +91,7 @@ const LoginPage = () => {
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow-lg" style={{ width: "400px" }}>
         <h3 className="text-center mb-3">ĐĂNG NHẬP</h3>
-
         {error && <div className="alert alert-danger">{error}</div>}
-
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">TÀI KHOẢN</label>

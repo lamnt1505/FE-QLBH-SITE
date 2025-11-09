@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useAlert } from "react-alert";
 import "../styles/CartPage/CartPage.css";
 import { useNavigate } from "react-router-dom";
 import { updateQuantity } from "../redux/reducers/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import API_BASE_URL from "../config/config.js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
-  const alert = useAlert();
   const navigate = useNavigate();
   const [discountCode, setDiscountCode] = useState("");
   const dispatch = useDispatch();
@@ -44,9 +44,9 @@ const CartPage = () => {
         note: data.note || prev.note,
         email: getValueOrFallback(data.email, ""),
       }));
-      alert.success("✅ Đã lấy thông tin từ tài khoản!");
+      toast.success("✅ Đã lấy thông tin từ tài khoản!");
     } catch (error) {
-      alert.error("❌ Không thể lấy thông tin tài khoản");
+      toast.error("❌ Không thể lấy thông tin tài khoản");
     }
   };
 
@@ -90,18 +90,18 @@ const CartPage = () => {
         .unwrap()
         .then((res) => {
           if (res.result === 1) {
-            alert.success(`✅ Đã cập nhật ${item.name}`);
+            toast.success(`✅ Đã cập nhật ${item.name}`);
           } else if (res.result === 2) {
-            alert.info(`🗑 ${item.name} đã bị xoá khỏi giỏ`);
+            toast.info(`🗑 ${item.name} đã bị xoá khỏi giỏ`);
           } else if (res.result === 0) {
-            alert.warning(
+            toast.warning(
               `⚠️ Không tìm thấy ${item.name}, vui lòng tải lại giỏ`
             );
           } else {
-            alert.error("❌ Cập nhật thất bại!");
+            toast.error("❌ Cập nhật thất bại!");
           }
         })
-        .catch(() => alert.error("🚨 Lỗi server khi cập nhật"));
+        .catch(() => toast.error("🚨 Lỗi server khi cập nhật"));
     });
   };
 
@@ -120,12 +120,12 @@ const CartPage = () => {
       const result = await res.text();
       if (result === "2") {
         setCartItems((prev) => prev.filter((item) => item.id !== id));
-        alert.success("🗑 Xóa sản phẩm thành công!");
+        toast.success("🗑 Xóa sản phẩm thành công!");
       } else {
-        alert.error("❌ Xóa sản phẩm thất bại!");
+        toast.error("❌ Xóa sản phẩm thất bại!");
       }
     } catch (err) {
-      alert.error("⚠ Lỗi hệ thống!");
+      toast.error("⚠ Lỗi hệ thống!");
     }
   };
 
@@ -142,7 +142,7 @@ const CartPage = () => {
 
   const applyDiscount = async () => {
     if (!discountCode.trim()) {
-      alert.error("⚠️ Vui lòng nhập mã giảm giá!");
+      toast.error("⚠️ Vui lòng nhập mã giảm giá!");
       return;
     }
     try {
@@ -163,23 +163,23 @@ const CartPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert.error(data.message || "❌ Mã giảm giá không hợp lệ!");
+        toast.error(data.message || "❌ Mã giảm giá không hợp lệ!");
         return;
       }
 
       if (data.success) {
         setDiscountedTotal(data.discountedTotal);
 
-        alert.success(
+        toast.success(
           `✅ ${
             data.message
           }\nTổng sau giảm: ${data.discountedTotal.toLocaleString()}₫`
         );
       } else {
-        alert.warning(data.message || "⚠️ Mã giảm giá không hợp lệ!");
+        toast.warning(data.message || "⚠️ Mã giảm giá không hợp lệ!");
       }
     } catch (err) {
-      alert.error("⚠️ Đã xảy ra lỗi hệ thống, vui lòng thử lại!");
+      toast.error("⚠️ Đã xảy ra lỗi hệ thống, vui lòng thử lại!");
     }
   };
 
@@ -187,19 +187,19 @@ const CartPage = () => {
     const { receiverName, receiverPhone, email, shippingAddress } = formData;
 
     if (!receiverName || !receiverPhone || !email || !shippingAddress) {
-      alert.error("⚠ Vui lòng nhập đầy đủ thông tin giao hàng!");
+      toast.error("⚠ Vui lòng nhập đầy đủ thông tin giao hàng!");
       return;
     }
 
     const phoneRegex = /^[0-9]{9,11}$/;
     if (!phoneRegex.test(receiverPhone)) {
-      alert.error("⚠ Số điện thoại không hợp lệ!");
+      toast.error("⚠ Số điện thoại không hợp lệ!");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert.error("⚠ Email không hợp lệ!");
+      toast.error("⚠ Email không hợp lệ!");
       return;
     }
     try {
@@ -215,21 +215,21 @@ const CartPage = () => {
       const result = await res.text();
 
       if (result === "1") {
-        alert.success("Đặt hàng thành công!");
+        toast.success("Đặt hàng thành công!");
         setCartItems([]);
         setTimeout(() => {
           window.location.reload();
         }, 1500);
       } else if (result === "0") {
-        alert.error("⚠ Bạn cần đăng nhập để đặt hàng.");
+        toast.error("⚠ Bạn cần đăng nhập để đặt hàng.");
         setTimeout(() => navigate("/login"), 1500);
       } else if (result === "-1") {
-        alert.error("Giỏ hàng trống, không thể đặt hàng.");
+        toast.error("Giỏ hàng trống, không thể đặt hàng.");
       } else {
-        alert.error("Đặt hàng thất bại!");
+        toast.error("Đặt hàng thất bại!");
       }
     } catch (err) {
-      alert.error("Lỗi hệ thống khi đặt hàng.");
+      toast.error("Lỗi hệ thống khi đặt hàng.");
     }
   };
 
@@ -244,7 +244,7 @@ const CartPage = () => {
       const orderData = await orderRes.json();
 
       if (orderData.status !== "success") {
-        alert.error("❌ " + orderData.message);
+        toast.error("❌ " + orderData.message);
         return;
       }
 
@@ -258,16 +258,16 @@ const CartPage = () => {
       const payData = await payRes.json();
 
       if (payData.status === "success") {
-        alert.success("✅ Chuyển hướng tới VNPAY...");
+        toast.success("✅ Chuyển hướng tới VNPAY...");
         setTimeout(() => {
           window.location.href = payData.paymentUrl;
         }, 1500);
       } else {
-        alert.error("❌ " + payData.message);
+        toast.error("❌ " + payData.message);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert.error("⚠ Lỗi kết nối server!");
+      toast.error("⚠ Lỗi kết nối server!");
     }
   };
 
@@ -428,7 +428,7 @@ const CartPage = () => {
                 onClick={() => {
                   const account = localStorage.getItem("accountName");
                   if (!account) {
-                    alert.error("⚠ Bạn cần đăng nhập để đặt hàng!");
+                    toast.error("⚠ Bạn cần đăng nhập để đặt hàng!");
                     setTimeout(() => navigate("/login"), 1500);
                   } else {
                     setShowModal(true);
@@ -443,7 +443,7 @@ const CartPage = () => {
                 onClick={() => {
                   const account = localStorage.getItem("accountName");
                   if (!account) {
-                    alert.error("⚠ Bạn cần đăng nhập để thanh toán!");
+                    toast.error("⚠ Bạn cần đăng nhập để thanh toán!");
                     setTimeout(() => navigate("/login"), 1500);
                   } else {
                     setShowVnpayModal(true);

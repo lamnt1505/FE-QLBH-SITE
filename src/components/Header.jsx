@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { BsCart3 } from "react-icons/bs";
-import { useAlert } from "react-alert";
 import API_BASE_URL from "../config/config.js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Header = ({ onSearch = () => {} }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +15,7 @@ const Header = ({ onSearch = () => {} }) => {
   const [accountID, setAccountID] = useState(null);
 
   const [searchKey, setSearchKey] = useState("");
-  const alert = useAlert();
+  
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   const [userDropdown, setUserDropdown] = useState(false);
@@ -28,7 +29,7 @@ const Header = ({ onSearch = () => {} }) => {
 
   const handleSearch = () => {
     if (key.trim() === "") {
-      alert.info("🔎 Vui lòng nhập nội dung để tìm kiếm sản phẩm!");
+      toast.info("🔎 Vui lòng nhập nội dung để tìm kiếm sản phẩm!");
       return;
     }
     onSearch(key);
@@ -103,7 +104,7 @@ const Header = ({ onSearch = () => {} }) => {
 
       navigate("/index");
     } catch (err) {
-      alert.error("Có lỗi khi đăng xuất");
+      toast.error("Có lỗi khi đăng xuất");
     }
   };
 
@@ -142,18 +143,18 @@ const Header = ({ onSearch = () => {} }) => {
       );
 
       if (res.ok) {
-        alert.success("ĐỔI MẬT KHẨU THÀNH CÔNG");
+        toast.success("ĐỔI MẬT KHẨU THÀNH CÔNG");
         setShowChangePass(false);
         setOldPassword("");
         setNewPassword("");
         setConfirmPassword("");
       } else {
         const msg = await res.text();
-        alert.error("Lỗi: " + msg);
+        toast.error("Lỗi: " + msg);
       }
     } catch (err) {
       console.error(err);
-      alert.error("Có lỗi khi gọi API");
+      toast.error("Có lỗi khi gọi API");
     }
   };
 

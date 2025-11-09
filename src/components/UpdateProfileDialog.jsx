@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../styles/UpdateProfilePage/UpdateProfilePage.css";
-import { useAlert } from "react-alert";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import API_BASE_URL from "../config/config.js";
 
 const UpdateProfilePage = () => {
@@ -17,7 +18,6 @@ const UpdateProfilePage = () => {
   });
 
   const [imageFile, setImageFile] = useState(null);
-  const alert = useAlert();
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/v1/account/${accountID}/get`)
@@ -33,8 +33,8 @@ const UpdateProfilePage = () => {
           image: data.image || "", // nếu có ảnh cũ thì hiển thị
         });
       })
-      .catch((err) => alert.error("Không thể tải thông tin tài khoản!"));
-  }, [accountID, alert]);
+      .catch((err) => toast.error("Không thể tải thông tin tài khoản!"));
+  }, [accountID, toast]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -63,10 +63,10 @@ const UpdateProfilePage = () => {
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || "Cập nhật thất bại");
 
-      alert.success(result.message);
+      toast.success(result.message);
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
-      alert.error(err.message);
+      toast.error(err.message);
     }
   };
 

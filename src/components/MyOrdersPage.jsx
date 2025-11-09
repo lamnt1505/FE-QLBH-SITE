@@ -3,11 +3,11 @@ import "../styles/myorderpage/MyOrdersPage.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Modal } from "bootstrap";
-import { useAlert } from "react-alert";
 import API_BASE_URL from "../config/config.js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MyOrdersPage = () => {
-  const alert = useAlert();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -104,14 +104,14 @@ const MyOrdersPage = () => {
       const result = await res.json().catch(() => null);
 
       if (res.ok) {
-        alert.success(result?.message || "Đơn hàng đã được hủy thành công ✅");
+        toast.success(result?.message || "Đơn hàng đã được hủy thành công ✅");
         window.location.reload();
       } else {
-        alert.error(result || "Không thể hủy đơn hàng ❌");
+        toast.error(result || "Không thể hủy đơn hàng ❌");
       }
     } catch (err) {
       console.error("Lỗi khi hủy đơn hàng:", err);
-      alert.error("Không thể kết nối server!");
+      toast.error("Không thể kết nối server!");
     } finally {
       handleCloseConfirm();
     }

@@ -3,13 +3,13 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import API_BASE_URL from "../config/config.js";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function FavoriteList() {
-  const alert = useAlert();
   const { accountID } = useParams();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,16 +46,16 @@ export default function FavoriteList() {
       );
 
       if (res.data.success) {
-        alert.success("✅ " + res.data.message);
+        toast.success("✅ " + res.data.message);
         setFavorites((prev) =>
           prev.filter((item) => item.id !== selectedItem.id)
         );
       } else {
-        alert.error("⚠️ " + res.data.message);
+        toast.error("⚠️ " + res.data.message);
       }
     } catch (err) {
       console.error("Lỗi khi xóa sản phẩm:", err);
-      alert.error("❌ Lỗi khi xóa sản phẩm!");
+      toast.error("❌ Lỗi khi xóa sản phẩm!");
     } finally {
       setDeleting(false);
       setSelectedItem(null);
@@ -75,17 +75,17 @@ export default function FavoriteList() {
       );
 
       if (res.ok) {
-        alert.success("🛒 Sản phẩm đã được thêm vào giỏ hàng!");
+        toast.success("🛒 Sản phẩm đã được thêm vào giỏ hàng!");
         if (window.updateCartQuantity) window.updateCartQuantity();
       } else if (res.status === 401) {
-        alert.info("🔑 Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+        toast.info("🔑 Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
       } else {
         const result = await res.text();
-        alert.error(result || "Thêm vào giỏ thất bại!");
+        toast.error(result || "Thêm vào giỏ thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi thêm vào giỏ hàng:", err);
-      alert.error("Không thể kết nối server!");
+      toast.error("Không thể kết nối server!");
     }
   };
 

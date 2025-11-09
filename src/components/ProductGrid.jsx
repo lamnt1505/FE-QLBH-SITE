@@ -23,13 +23,13 @@ import {
   Stack,
 } from "@mui/material";
 import Rating from "@mui/material/Rating";
-import { useAlert } from "react-alert";
 import { Toast } from "bootstrap";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import API_BASE_URL from "../config/config.js";
 
 const ProductGrid = ({ searchKey }) => {
   const navigate = useNavigate();
-  const alert = useAlert();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -126,7 +126,7 @@ const ProductGrid = ({ searchKey }) => {
 
   useEffect(() => {
     fetchProductsDefault(0);
-  }, [alert]);
+  }, [toast]);
 
   useEffect(() => {
     if (!searchKey.trim()) return;
@@ -221,7 +221,7 @@ const ProductGrid = ({ searchKey }) => {
 
   const toggleFavorite = async (productId) => {
     if (!accountID) {
-      alert.info("🔑 Vui lòng đăng nhập để thêm sản phẩm yêu thích!");
+      toast.info("🔑 Vui lòng đăng nhập để thêm sản phẩm yêu thích!");
       setTimeout(() => navigate("/login"), 1200);
       return;
     }
@@ -234,14 +234,14 @@ const ProductGrid = ({ searchKey }) => {
       const result = await res.text();
 
       if (res.ok) {
-        alert.success("❤️ Đã thêm vào danh mục yêu thích!");
+        toast.success("❤️ Đã thêm vào danh mục yêu thích!");
         setFavorites((prev) => [...prev, productId]);
       } else {
-        alert.error(result || "Thêm yêu thích thất bại!");
+        toast.error(result || "Thêm yêu thích thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi thêm yêu thích:", err);
-      alert.error("Không thể kết nối server!");
+      toast.error("Không thể kết nối server!");
     }
   };
 
@@ -262,16 +262,16 @@ const ProductGrid = ({ searchKey }) => {
 
       const result = await res.json();
       if (res.ok) {
-        alert.success("Cảm ơn bạn đã đánh giá!");
+        toast.success("Cảm ơn bạn đã đánh giá!");
         setOpenVote(false);
         setRating(0);
         setComment("");
       } else {
-        alert.error(result || "Đánh giá thất bại!");
+        toast.error(result || "Đánh giá thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi gửi đánh giá:", err);
-      alert.error("Không thể kết nối server!");
+      toast.error("Không thể kết nối server!");
     }
   };
 
@@ -283,17 +283,17 @@ const ProductGrid = ({ searchKey }) => {
       );
 
       if (res.ok) {
-        alert.success("🛒 Sản phẩm đã được thêm vào giỏ hàng!");
+        toast.success("🛒 Sản phẩm đã được thêm vào giỏ hàng!");
         if (window.updateCartQuantity) {
           window.updateCartQuantity();
         }
       } else {
         const result = await res.text();
-        alert.error(result || "Thêm vào giỏ thất bại!");
+        toast.error(result || "Thêm vào giỏ thất bại!");
       }
     } catch (err) {
       console.error("Lỗi khi thêm vào giỏ hàng:", err);
-      alert.error("Không thể kết nối server!");
+      toast.error("Không thể kết nối server!");
     }
   };
 
@@ -352,12 +352,12 @@ const ProductGrid = ({ searchKey }) => {
 
   const handleCompare = (product) => {
     if (comparedProducts.some((p) => p.id === product.id)) {
-      alert.info("🔍 Sản phẩm này đã được thêm để so sánh!");
+      toast.info("🔍 Sản phẩm này đã được thêm để so sánh!");
       return;
     }
 
     if (comparedProducts.length === 2) {
-      alert.show("⚠️ Chỉ so sánh tối đa 2 sản phẩm mỗi lần!");
+      toast.show("⚠️ Chỉ so sánh tối đa 2 sản phẩm mỗi lần!");
       return;
     }
 
