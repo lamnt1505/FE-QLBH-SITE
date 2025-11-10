@@ -19,7 +19,7 @@ const LoginPage = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/account/captcha`, {
         method: "GET",
-        credentials: "include", // 👈 Giữ session JSESSIONID khi BE gửi xuống
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Không thể tải captcha");

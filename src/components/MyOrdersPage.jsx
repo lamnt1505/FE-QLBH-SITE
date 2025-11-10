@@ -104,8 +104,10 @@ const MyOrdersPage = () => {
       const result = await res.json().catch(() => null);
 
       if (res.ok) {
-        toast.success(result?.message || "Đơn hàng đã được hủy thành công ✅");
-        window.location.reload();
+      toast.success(result?.message || "Đơn hàng đã được hủy thành công ✅");
+      setOrders((prev) =>
+        prev.filter((order) => order.orderID !== orderToCancel)
+      );
       } else {
         toast.error(result || "Không thể hủy đơn hàng ❌");
       }
