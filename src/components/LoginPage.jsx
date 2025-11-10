@@ -15,10 +15,22 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
 
 
-  const refreshCaptcha = () => {
-    setCaptchaUrl(
-      `${API_BASE_URL}/api/v1/account/captcha?${new Date().getTime()}`
-    );
+  const refreshCaptcha = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/account/captcha`, {
+        method: "GET",
+        credentials: "include", // 👈 Giữ session JSESSIONID khi BE gửi xuống
+      });
+
+      if (!res.ok) throw new Error("Không thể tải captcha");
+
+      const blob = await res.blob();
+      const imgUrl = URL.createObjectURL(blob);
+      setCaptchaUrl(imgUrl);
+    } catch (err) {
+      console.error("Lỗi captcha:", err);
+      toast.error("Không tải được captcha");
+    }
   };
 
   useEffect(() => {
