@@ -20,6 +20,7 @@ import FavoriteList from "./components/FavoriteList";
 import ProductDetailPage from "./components/ProductDetailPage";
 import { ToastContainer } from "react-toastify";
 import UpdateProfileDialogPage from "./components/UpdateProfileDialog";
+import VnpayRedirect from "./components/VnpayRedirect";
 
 const options = {
   position: "top-right",
@@ -56,7 +57,8 @@ function App() {
               <Route path="/favorites/:accountID" element={<FavoriteList />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="/payment-result" element={<PaymentResult />} />
+              <Route path="/vnpay-redirect" element={<VnpayRedirect />} />
+              <Route path="/payment-result" element={<PaymentResult />} />             
               <Route path="/updateProfile/:accountID" element={<UpdateProfileDialogPage />} />
               <Route path="/catalog/:categoryID" element={<CatalogPage />} />
               <Route path="/cart" element={<CartPage />} />
