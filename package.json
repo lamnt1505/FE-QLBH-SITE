@@ -29,7 +29,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && npx copyfiles -f static.json build/",
+    "build": "react-scripts build && npx copyfiles -u 1 static.json build/",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
