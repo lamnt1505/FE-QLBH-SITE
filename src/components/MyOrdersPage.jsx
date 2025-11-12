@@ -51,12 +51,9 @@ const MyOrdersPage = () => {
       const accountId = Number(accountIdStr);
       if (isNaN(accountId)) return;
 
-      const res = await fetch(
-        `${API_BASE_URL}/orders/account/${accountId}`,
-        {
-          credentials: "include",
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/orders/account/${accountId}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Không tìm thấy đơn hàng");
       const data = await res.json();
       setOrders(data);
@@ -92,6 +89,7 @@ const MyOrdersPage = () => {
 
   const cancelOrder = async () => {
     if (!orderToCancel) return;
+
     try {
       const res = await fetch(
         `${API_BASE_URL}/dossier-statistic/cancel-order?orderID=${orderToCancel}`,
@@ -101,21 +99,37 @@ const MyOrdersPage = () => {
         }
       );
 
-      const result = await res.json().catch(() => null);
+      // Tránh lỗi nếu BE trả về text chứ không phải JSON
+      const resultText = await res.text();
+      let result;
+      try {
+        result = JSON.parse(resultText);
+      } catch {
+        result = { message: resultText };
+      }
 
       if (res.ok) {
-      toast.success(result?.message || "Đơn hàng đã được hủy thành công ✅");
-      setOrders((prev) =>
-        prev.filter((order) => order.orderID !== orderToCancel)
-      );
+        toast.success(result?.message || "✅ Đơn hàng đã được hủy thành công!");
+
+        // ✅ Cập nhật lại danh sách đơn hàng (chỉ đổi trạng thái, không xoá mất)
+        setOrders((prev) =>
+          prev.map((order) =>
+            order.orderId === orderToCancel
+              ? { ...order, status: "ĐÃ HỦY" }
+              : order
+          )
+        );
       } else {
-        toast.error(result || "Không thể hủy đơn hàng ❌");
+        toast.error(result?.message || "❌ Không thể hủy đơn hàng");
       }
     } catch (err) {
       console.error("Lỗi khi hủy đơn hàng:", err);
-      toast.error("Không thể kết nối server!");
+      toast.error("Không thể kết nối đến server!");
     } finally {
-      handleCloseConfirm();
+      const modalElement = document.getElementById("cancelOrderModal");
+      const modalInstance = Modal.getInstance(modalElement);
+      if (modalInstance) modalInstance.hide();
+      setOrderToCancel(null);
     }
   };
 

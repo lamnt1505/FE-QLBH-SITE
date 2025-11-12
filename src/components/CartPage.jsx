@@ -203,23 +203,20 @@ const CartPage = () => {
       return;
     }
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/dossier-statistic/orders`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/dossier-statistic/orders`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
       const result = await res.text();
 
       if (result === "1") {
-        toast.success("Đặt hàng thành công!");
+        toast.success("Đặt hàng thành công! Đang chuyển hướng...", {
+          autoClose: 1000,
+        });
         setCartItems([]);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        setTimeout(() => navigate("/myorder"), 1200);
       } else if (result === "0") {
         toast.error("⚠ Bạn cần đăng nhập để đặt hàng.");
         setTimeout(() => navigate("/login"), 1500);
