@@ -1,13 +1,9 @@
 {
   "redirects": [
-    { "source": "/**", "destination": "/index.html", "status": 200 }
-  ],
-  "headers": [
     {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache" }
-      ]
+      "source": "/**",
+      "destination": "/index.html",
+      "status": 200
     }
   ]
 }
