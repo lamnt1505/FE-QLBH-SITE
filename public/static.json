@@ -1,6 +1,5 @@
 {
-  "root": "build/",
-  "routes": {
-    "/**": "index.html"
-  }
+  "redirects": [
+    { "source": "/**", "destination": "/index.html", "status": 200 }
+  ]
 }
