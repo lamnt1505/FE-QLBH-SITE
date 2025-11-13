@@ -7,7 +7,7 @@ export default function PaymentResult() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('💳 PaymentResult mounted');g
+    console.log('💳 PaymentResult mounted');
     console.log('📝 Query string:', window.location.search);
     
     const fetchResult = async () => {
