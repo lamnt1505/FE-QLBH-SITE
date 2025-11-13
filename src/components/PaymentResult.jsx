@@ -7,10 +7,14 @@ export default function PaymentResult() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('💳 PaymentResult mounted');g
+    console.log('📝 Query string:', window.location.search);
+    
     const fetchResult = async () => {
       const res = await fetch(
         `${API_BASE_URL}/vnpay-return${window.location.search}`
       );
+      
       const data = await res.json();
       console.log("👉 Gọi API:", data);
       setResult(data);

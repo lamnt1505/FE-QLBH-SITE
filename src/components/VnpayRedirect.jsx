@@ -5,8 +5,12 @@ export default function VnpayRedirect() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('🔍 VnpayRedirect mounted');
+    console.log('📍 Current URL:', window.location.href);
+    console.log('📝 Query string:', window.location.search);
     const query = window.location.search;
 
+    console.log('✅ Có query params, chuyển sang /payment-result');
     navigate(`/payment-result${query}`, { replace: true });
   }, [navigate]);
 
