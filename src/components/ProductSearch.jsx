@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -21,6 +22,7 @@ import {
 import API_BASE_URL from "../config/config.js";
 
 const ProductSearch = ({ open, onClose }) => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [trademarks, setTrademarks] = useState([]);
   const [versions, setVersions] = useState([]);
@@ -89,6 +91,11 @@ const ProductSearch = ({ open, onClose }) => {
     setProducts([]);
   };
 
+  const handleProductClick = (productId) => {
+    onClose(); // Đóng dialog trước
+    navigate(`/product/${productId}`); // Chuyển sang trang chi tiết
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.3rem" }}>
@@ -96,7 +103,6 @@ const ProductSearch = ({ open, onClose }) => {
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={2}>
-          {/* Danh mục */}
           <Grid item xs={3}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
@@ -221,9 +227,11 @@ const ProductSearch = ({ open, onClose }) => {
               </TableHead>
               <TableBody>
                 {products.map((p) => (
-                  <TableRow hover key={p.id}>
+                  <TableRow hover key={p.id} 
+                  onClick={() => handleProductClick(p.id)} // THÊM onClick
+                    sx={{ cursor: "pointer" }}>
                     <TableCell>
-                      <a href={`/index/showProductSingle/${p.id}`}>{p.name}</a>
+                      <a>{p.name}</a>
                     </TableCell>
                     <TableCell>
                       <img

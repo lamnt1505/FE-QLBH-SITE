@@ -16,7 +16,6 @@ const Header = ({ onSearch = () => {} }) => {
 
   const [searchKey, setSearchKey] = useState("");
   
-
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   const [userDropdown, setUserDropdown] = useState(false);
 
@@ -249,7 +248,7 @@ const Header = ({ onSearch = () => {} }) => {
                 className="btn btn-sm btn-outline-danger"
                 onClick={() => navigate(`/favorites/${accountID}`)}
               >
-                ❤️ DANH SÁCH YÊU THÍCH
+                DANH SÁCH YÊU THÍCH
               </button>
               <button
                 className="btn btn-sm btn-outline-primary"
@@ -269,7 +268,6 @@ const Header = ({ onSearch = () => {} }) => {
                 👤 {username}
               </span>
 
-              {/* dropdown */}
               {userDropdown && (
                 <div
                   className="position-absolute bg-white border rounded shadow"

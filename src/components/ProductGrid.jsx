@@ -26,6 +26,7 @@ import Rating from "@mui/material/Rating";
 import { Toast } from "bootstrap";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../styles/product/Productgirl.css";
 import API_BASE_URL from "../config/config.js";
 
 const ProductGrid = ({ searchKey }) => {

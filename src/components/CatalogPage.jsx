@@ -22,10 +22,14 @@ const CatalogPage = () => {
 
   useEffect(() => {
     if (cartState.status === "succeeded") {
+        if (window.updateCartQuantity) {
+          window.updateCartQuantity();
+        }
       toast.success(
         <div className="flex items-center space-x-2">
           <span>SẢN PHẨM ĐÃ ĐƯỢC THÊM VÀO GIỎ HÀNG!</span>
-        </div>,
+        </div>
+        ,
         {
           style: {
             background: "#111",

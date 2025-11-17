@@ -28,10 +28,9 @@ const CartPage = () => {
     try {
       const accountID = localStorage.getItem("accountId");
 
-      const res = await fetch(
-        `${API_BASE_URL}/address/account/${accountID}`,
-        { credentials: "include" }
-      );
+      const res = await fetch(`${API_BASE_URL}/address/account/${accountID}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Lỗi lấy thông tin tài khoản");
 
       const data = await res.json();
@@ -69,7 +68,7 @@ const CartPage = () => {
           name: item.name,
           price: item.price,
           amount: item.amount,
-          imageUrl: item.image
+          imageUrl: item.image,
         }));
         setCartItems(mappedCart);
       } catch (err) {
@@ -121,6 +120,9 @@ const CartPage = () => {
       if (result === "2") {
         setCartItems((prev) => prev.filter((item) => item.id !== id));
         toast.success("🗑 Xóa sản phẩm thành công!");
+        if (window.updateCartQuantity) {
+          window.updateCartQuantity();
+        }
       } else {
         toast.error("❌ Xóa sản phẩm thất bại!");
       }
@@ -166,10 +168,8 @@ const CartPage = () => {
         toast.error(data.message || "❌ Mã giảm giá không hợp lệ!");
         return;
       }
-
       if (data.success) {
         setDiscountedTotal(data.discountedTotal);
-
         toast.success(
           `✅ ${
             data.message
